@@ -1,6 +1,6 @@
 # Harmonie
 
-Générateur de suites d'accords et de modes, avec basse, mélodie et batterie, pour composer dans de nombreux styles. Tout tourne dans le navigateur, sans installation ni compilation.
+Générateur de suites d'accords et de modes, avec basse, mélodie et batterie, pour composer dans de nombreux styles. Tout tourne dans le navigateur, sans installation ni compilation. La spécification fonctionnelle détaillée est dans [SPECIFICATIONS.md](SPECIFICATIONS.md).
 
 ## Lancer l'application
 
@@ -55,8 +55,9 @@ Les réglages et la grille en cours sont enregistrés dans le navigateur de chaq
 | `index.html` | page, styles des deux habillages, chargement des scripts |
 | `engine.js` | moteur musical sans interface : styles, ambiances, mesures, génération des grilles, pont, suggestions, mélodie, basse |
 | `app.js` | interface, synthèse sonore (Web Audio), motifs d'accompagnement et de batterie, vues, export MIDI |
+| `docs/` | cette présentation, la spécification fonctionnelle (`SPECIFICATIONS.md`) et les consignes de développement (`CLAUDE.md`) |
 
-Le moteur peut s'utiliser seul dans Node :
+Le moteur peut s'utiliser seul dans Node, depuis la racine du dépôt :
 
 ```js
 const H = require('./engine.js');
