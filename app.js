@@ -909,6 +909,10 @@
   };
 
   // Le style nomme son motif d'accompagnement et son kit ; il peut remplacer le timbre du motif.
+  // Timbre réellement joué par les accords : hors motif du style, un pad devient un piano électrique (plaqués, arpèges).
+  // La lecture et le programme MIDI de la piste Accords s'en servent tous les deux.
+  const chordTimbre = () => { const P = pattern(); return S.parts.chords.play !== 'style' && P.timbre === 'pad' ? 'keys' : P.timbre; };
+
   // Si l'option est active et que la mesure a ses propres motifs, ils remplacent ceux du style (le timbre reste celui du style).
   const ownMeter = () => S.meterOwn && !!METER_KITS[S.meter];
   const pattern = () => {
@@ -1305,15 +1309,20 @@
     if (S.parts.mel.on) written('mel', melNotes(), 'lead');
 
     if (C.play !== 'style') {
-      const timbre = P.timbre === 'pad' ? 'keys' : P.timbre;
+      const timbre = chordTimbre();
       if (e.start) {
         if (B.on && !bassWritten()) add('bass', v.bass, 0, Math.min(ch.beats, 4) * 2 * .95, .9, 'bass');
         if (C.on && C.play === 'block') v.notes.forEach((m, k) => add('chords', m, 0, ch.beats * 2 * .95, .7, timbre, k * .008));
       }
       if (C.on && C.play !== 'block') {
-        // rate = notes par temps ; les triolets se placent sur les temps (croches paires)
-        const r = C.rate, per = r === 3 ? (e.k % 2 ? 0 : 3) : r / 2, gap = 2 / r;
-        for (let j = 0; j < per; j++) add('chords', arpNote(v, e.k * r / 2 + j, q), (r === 2 ? sw : 0) + j * gap, gap * 1.7, .7, timbre);
+        // rate = notes par temps ; les triolets se placent sur les temps (croches paires de l'accord). Une croche restée seule
+        // en fin d'accord (mesures à nombre impair de croches) reçoit une seule note. Chaque note s'arrête avant l'accord suivant.
+        const r = C.rate, len8 = Math.round(ch.beats * 2), alone = r === 3 && e.k + 1 >= len8;
+        const per = r === 3 ? (e.k % 2 ? 0 : alone ? 1 : 3) : r / 2, gap = alone ? 1 : 2 / r;
+        for (let j = 0; j < per; j++) {
+          const off = (r === 2 ? sw : 0) + j * gap, room = len8 - e.k - off; // place restante avant l'accord suivant, swing compris
+          add('chords', arpNote(v, e.k * r / 2 + j, q), off, Math.min(gap * 1.7, room * .97), .7, timbre);
+        }
       }
       return ev;
     }
@@ -1500,7 +1509,7 @@
     return b;
   }
   const u32 = n => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255];
-  const ascii = s => Array.from(s).map(c => c.charCodeAt(0) & 0x7f);
+  const ascii = s => Array.from(s.replace(/°/g, 'dim').normalize('NFD').replace(/[\u0300-\u036f]/g, '')).map(c => (c.charCodeAt(0) < 128 ? c.charCodeAt(0) : 63));
   const meta = (type, bytes) => [0xff, type].concat(vlq(bytes.length), bytes);
 
   function midiTrack(events) { // [tick, ordre, octets]
@@ -1545,7 +1554,7 @@
         last[n.m] = n;
         n.off = Math.min(n.off, end);
       }
-      const program = part.program != null ? part.program : part.track === 'chords' ? GM_PROGRAM[pattern().timbre] : null;
+      const program = part.program != null ? part.program : part.track === 'chords' ? GM_PROGRAM[chordTimbre()] : null;
       const evs = [[0, 0, meta(0x03, ascii(part.name))]];
       if (program != null) evs.push([0, 0, [0xc0 | part.chan, program]]);
       evs.push([0, 0, [0xb0 | part.chan, 7, Math.min(127, Math.round(100 * S.parts[part.track].vol / .8))]]); // volume de piste

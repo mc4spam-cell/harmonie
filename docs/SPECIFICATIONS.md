@@ -1,6 +1,6 @@
 # Harmonie — spécification fonctionnelle
 
-Version décrite : dépôt `/Users/mc/harmonie`, branche `docs/readme-claude`, commit `0238dad`. Ce document décrit le comportement de l'application. Les valeurs citées proviennent de `engine.js`, `app.js` et `index.html` ; les points non vérifiés sont signalés « à confirmer » et repris en section 15.
+Version décrite : dépôt `/Users/mc/harmonie`, branche `main`. Ce document décrit le comportement de l'application. Les valeurs citées proviennent de `engine.js`, `app.js` et `index.html` ; les points non vérifiés sont signalés « à confirmer » et repris en section 15.
 
 ## 1. Objet et périmètre
 
@@ -252,6 +252,9 @@ Certaines valeurs (couleur des accords, accords de la grille) ne prennent effet 
   - densité au-dessus de 0,66 : toutes les croches.
   - La variation supprime des coups du motif ou en ajoute.
 - **Arpèges** : notes de l'accord, prolongées d'une octave, parcourues dans le sens choisi. Les notes sont réparties par mesure, avec une inversion ou un décalage de départ tirés selon la variation.
+  - Croches : une note par croche ; doubles croches : deux. Triolets : trois notes sur chaque paire de croches de l'accord ; une croche restée seule en fin d'accord (accord d'un nombre impair de croches, en 6/8, 7/8, 9/8…) reçoit une seule note.
+  - Chaque note dure 1,7 fois l'écart entre deux notes, mais s'arrête avant le changement d'accord (swing compris) : aucune note d'arpège ne déborde sur l'accord suivant.
+- **Timbre des accords plaqués et arpégés** : un style au timbre pad est joué au piano électrique (keys) dès que le jeu n'est plus « Motif du style ». L'export MIDI écrit le programme du timbre réellement joué.
 - **Basse avec un accord joué en arpège ou en plaqué** (basse en « Motif du style ») : la fondamentale tient au début de chaque accord, jusqu'à quatre temps.
 - Registre : le centre de l'accord est à 52 (grave), 59 (médium) ou 66 (aigu) en numéro de note MIDI.
 
@@ -460,12 +463,13 @@ Bouton **Exporter MIDI**. Fichier `harmonie-<style>-<tonique>[m]-<tempo>bpm.mid`
 
 | Piste | Partie | Canal | Programme |
 |---|---|---|---|
-| 1 | Accords | 1 | selon le timbre : piano électrique (keys, 4), guitare claire (guitar, 27), pad (pad, 89), guitare saturée (dist, 29), synthé (synth, 81), cordes (strings, 48), guitare nylon (pluck, 24), accordéon (organ, 21) |
+| 1 | Accords | 1 | selon le timbre réellement joué (un pad en plaqués ou en arpège devient keys) : piano électrique (keys, 4), guitare claire (guitar, 27), pad (pad, 89), guitare saturée (dist, 29), synthé (synth, 81), cordes (strings, 48), guitare nylon (pluck, 24), accordéon (organ, 21) |
 | 2 | Basse | 2 | 33 |
 | 3 | Mélodie | 3 | 80 |
 | 4 | Batterie | 10 | batterie (canal 10) |
 
 - Programmes écrits tels quels dans le fichier, numérotés à partir de 0 (voir section 15).
+- **Textes** (noms de piste, marqueurs) : ASCII strict. Le symbole ° devient « dim » (`B°7` → `Bdim7`), les accents sont retirés, tout autre caractère non ASCII devient « ? ».
 - **Volume** : contrôleur 7 de chaque piste = 100 × volume / 0,8, borné à 127.
 - Batterie : hauteurs GM (k 36, s 38, r 37, h 42, o 46, d 51, c 39, a 70, b 40 — les balais sont remplacés par la caisse claire douce, 40) ; vélocité 40 + 70 × vélocité interne, fixée à 45 pour les balais.
 - Notes : vélocité = 110 × vélocité interne ; durée minimale 30 ticks ; une note répétée à la même hauteur coupe la précédente ; rien ne dépasse la fin de la boucle.
@@ -511,13 +515,11 @@ Les deux habillages affichent les mêmes fonctions et les mêmes libellés. Les 
 
 ## 15. Points à confirmer et écarts relevés
 
-1. **Programme MIDI des accords en arpège (timbre « pad »)** : la lecture joue un timbre `keys` pour les arpèges de pad (`timbre = P.timbre === 'pad' ? 'keys' : P.timbre`), tandis que l'export écrit le programme 89 (pad). À confirmer à l'écoute ; le fichier et la lecture diffèrent sur le timbre seul.
-2. **Marqueurs des accords diminués** : le nom `°7` devient `07` dans le marqueur MIDI, car le filtre ASCII (`charCode & 0x7f`) remplace le symbole `°`. Constaté sur `B°7`. Les marqueurs des autres accords sont corrects.
-3. **Numérotation des programmes** : les valeurs écrites (33 pour la basse, 80 pour la mélodie, et celles de la table de la section 12) sont des octets de changement de programme, donc comptées à partir de 0. Les noms de la section 12 reprennent les commentaires de `GM_PROGRAM` dans `app.js` ; à confirmer dans un logiciel de séquençage.
-4. **Strum** : la lecture égrène les notes des accords de 6 ms (motif) ou 8 ms (plaqués). L'export les place au même instant.
-5. **Durées** : la lecture garde la durée exacte des notes ; l'export applique une durée minimale de 30 ticks et tronque les notes à la fin de la boucle. Les notes courtes peuvent donc durer un peu plus dans le fichier.
-6. **Vélocité et volume** : la vélocité MIDI est une transposition linéaire de la vélocité interne, et le volume est linéaire (CC7). La lecture utilise un gain quadratique (`(vol / 0,8)²`). Les hauteurs, les instants et les durées sont identiques ; les niveaux ne le sont pas.
-7. **Motif propre de valse (3/4)** : il est écrit sans swing ; le motif du style, en 3/4 sans motif propre, garde le swing de son style. Conforme au code ; à confirmer comme intention.
-8. **Libellés en double** : « Prog » désigne deux styles (rock et metal), d'où la nécessité de regarder la famille dans le menu.
-9. **Probabilités et rendu sonore** : les seuils et poids décrits viennent du code. Leur effet à l'écoute n'a pas été vérifié ; ce document décrit le comportement du code, pas le rendu sonore.
-10. **Diminués de passage dans « Continuer avec »** : ils n'y sont proposés que pour les styles jazzy. Dans la génération, ils dépendent de la couleur pour tous les styles dont la probabilité de diminué est non nulle.
+1. **Numérotation des programmes** : les valeurs écrites (33 pour la basse, 80 pour la mélodie, et celles de la table de la section 12) sont des octets de changement de programme, donc comptées à partir de 0. Les noms de la section 12 reprennent les commentaires de `GM_PROGRAM` dans `app.js` ; à confirmer dans un logiciel de séquençage.
+2. **Strum** : la lecture égrène les notes des accords de 6 ms (motif) ou 8 ms (plaqués). L'export les place au même instant.
+3. **Durées** : la lecture garde la durée exacte des notes ; l'export applique une durée minimale de 30 ticks et tronque les notes à la fin de la boucle. Les notes courtes peuvent donc durer un peu plus dans le fichier.
+4. **Vélocité et volume** : la vélocité MIDI est une transposition linéaire de la vélocité interne, et le volume est linéaire (CC7). La lecture utilise un gain quadratique (`(vol / 0,8)²`). Les hauteurs, les instants et les durées sont identiques ; les niveaux ne le sont pas.
+5. **Motif propre de valse (3/4)** : il est écrit sans swing ; le motif du style, en 3/4 sans motif propre, garde le swing de son style. Conforme au code ; à confirmer comme intention.
+6. **Libellés en double** : « Prog » désigne deux styles (rock et metal), d'où la nécessité de regarder la famille dans le menu.
+7. **Probabilités et rendu sonore** : les seuils et poids décrits viennent du code. Leur effet à l'écoute n'a pas été vérifié ; ce document décrit le comportement du code, pas le rendu sonore.
+8. **Diminués de passage dans « Continuer avec »** : ils n'y sont proposés que pour les styles jazzy. Dans la génération, ils dépendent de la couleur pour tous les styles dont la probabilité de diminué est non nulle.
