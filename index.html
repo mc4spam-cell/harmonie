@@ -234,9 +234,10 @@
   .tabs { display: none; }
   .tabs button { flex: none; padding: 7px 14px; font-size: 13px; background: transparent; border: 1px solid var(--line); border-radius: 99px; white-space: nowrap; }
   .tabs button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-  /* Bouton Lecture flottant : miroir de #play, visible seulement sur mobile hors onglet Général. */
-  .miniplay { display: none; position: fixed; right: 14px; bottom: 14px; z-index: 20; }
-  .miniplay button { width: 58px; height: 58px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); border: 0; font-size: 20px; font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,.35); cursor: pointer; }
+  /* Barre d'actions mobile : miroir de #play et #regenAll, toujours visible sous le breakpoint. */
+  .miniplay { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); gap: 8px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--line); }
+  .miniplay button { flex: 1; padding: 12px 14px; font-size: 14px; font-weight: 600; }
+  .miniplay #miniRegenBtn { background: var(--panel2); }
 
   @media (max-width: 760px) {
     .grid { grid-template-columns: repeat(var(--cols-narrow, 16), 1fr); }
@@ -250,24 +251,16 @@
     .tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; z-index: 10; margin: 0 -14px 12px; padding: 8px 14px; background: var(--bg); border-bottom: 1px solid var(--line); }
     .tabs::-webkit-scrollbar { display: none; }
 
-    /* Masque toutes les zones ; l'onglet actif réaffiche la sienne. */
+    /* Masque toutes les zones ; l'onglet actif réaffiche la sienne. Grille, Carte et Disque pointent sur la zone Morceau en forçant la vue correspondante. */
     body[data-tab] main > section.zone { display: none; }
-    body[data-tab="general"] main > section[aria-labelledby="zGeneral"],
-    body[data-tab="song"]    main > section[aria-labelledby="zGrid"],
-    body[data-tab="chords"]  main > section[aria-labelledby="zParts"],
-    body[data-tab="bass"]    main > section[aria-labelledby="zParts"],
-    body[data-tab="mel"]     main > section[aria-labelledby="zParts"],
-    body[data-tab="drums"]   main > section[aria-labelledby="zParts"] { display: block; }
-    body[data-tab="chords"] .part:not([data-part="chords"]),
-    body[data-tab="bass"]   .part:not([data-part="bass"]),
-    body[data-tab="mel"]    .part:not([data-part="mel"]),
-    body[data-tab="drums"]  .part:not([data-part="drums"]) { display: none; }
+    body[data-tab="general"]     main > section[aria-labelledby="zGeneral"],
+    body[data-tab="instruments"] main > section[aria-labelledby="zParts"],
+    body[data-tab="grid"]        main > section[aria-labelledby="zGrid"],
+    body[data-tab="map"]         main > section[aria-labelledby="zGrid"],
+    body[data-tab="disc"]        main > section[aria-labelledby="zGrid"] { display: block; }
+    /* Dans les onglets de vue, le sélecteur Grille/Disque/Carte est redondant avec les onglets. */
+    body[data-tab="grid"] #view, body[data-tab="map"] #view, body[data-tab="disc"] #view { display: none; }
     .parts { grid-template-columns: 1fr; }
-    /* Le titre « Instruments » n'a plus de sens quand un seul panneau s'affiche. */
-    body[data-tab="chords"] h2#zParts,
-    body[data-tab="bass"]   h2#zParts,
-    body[data-tab="mel"]    h2#zParts,
-    body[data-tab="drums"]  h2#zParts { display: none; }
 
     /* Bandes famille / style : scroll horizontal au lieu d'enroulage. */
     #family, #style { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; max-width: 100%; }
@@ -280,9 +273,8 @@
     /* Panneau d'instrument : étend les contrôles pour les gros doigts. */
     .part select, .part input[type=range], .part output { font-size: 14px; }
 
-    /* FAB : visible partout sauf dans Général (où le vrai bouton est déjà sous les yeux). */
-    .miniplay { display: block; }
-    body[data-tab="general"] .miniplay { display: none; }
+    /* Barre d'actions : toujours visible sous le breakpoint. */
+    .miniplay { display: flex; }
 
     /* Habillage Studio : ramène les marges confortables pour l'écran étroit. */
     html[data-look="studio"] main { padding: 10px 14px 90px; }
@@ -472,12 +464,11 @@
   </header>
 
   <nav id="tabs" class="tabs" role="tablist" aria-label="Sections">
-    <button data-v="general" role="tab">Général</button>
-    <button data-v="chords"  role="tab">Accords</button>
-    <button data-v="bass"    role="tab">Basse</button>
-    <button data-v="mel"     role="tab">Mélodie</button>
-    <button data-v="drums"   role="tab">Batterie</button>
-    <button data-v="song"    role="tab">Morceau</button>
+    <button data-v="general"     role="tab">Général</button>
+    <button data-v="instruments" role="tab">Instruments</button>
+    <button data-v="grid"        role="tab">Grille</button>
+    <button data-v="map"         role="tab">Carte</button>
+    <button data-v="disc"        role="tab">Disque</button>
   </nav>
 
   <section class="zone" aria-labelledby="zGeneral">
@@ -535,7 +526,10 @@
     Survole un réglage d'instrument pour voir ce qu'il fait.
   </footer>
 </main>
-<div id="miniplay" class="miniplay"><button id="miniPlayBtn" aria-label="Lecture / Pause" title="Lecture / Pause">▶</button></div>
+<div id="miniplay" class="miniplay" aria-label="Actions rapides">
+  <button id="miniPlayBtn" class="primary" aria-label="Lecture / Pause" title="Lecture / Pause">▶ Lecture</button>
+  <button id="miniRegenBtn" aria-label="Tout régénérer" title="Tout régénérer">↻ Tout régénérer</button>
+</div>
 <div id="toast"></div>
 <dialog id="shortcuts" class="sheet" aria-labelledby="scTitle">
   <form method="dialog" class="sheet-head">
@@ -579,6 +573,7 @@
 </script>
 <script>
   // Onglets mobiles : au-dessus du breakpoint le nav est caché par CSS, le data-tab n'a aucun effet. Le choix est mémorisé.
+  // Grille, Carte et Disque forcent en plus la vue correspondante du sélecteur #view (sans quoi la zone Morceau garderait la dernière vue affichée).
   (function () {
     const nav = document.getElementById('tabs');
     if (!nav) return;
@@ -587,22 +582,30 @@
       document.body.dataset.tab = v;
       for (const b of nav.children) b.classList.toggle('on', b.dataset.v === v);
       try { localStorage.setItem('harmonie.tab', v); } catch (err) { /* stockage indisponible */ }
+      if (v === 'grid' || v === 'map' || v === 'disc') {
+        const btn = document.querySelector('#view button[data-v="' + v + '"]');
+        if (btn && !btn.classList.contains('on')) btn.click();
+      }
     };
     nav.addEventListener('click', e => { const v = e.target.dataset.v; if (v) activate(v); });
+    const valid = v => Array.from(nav.children).some(b => b.dataset.v === v);
     let saved = null;
     try { saved = localStorage.getItem('harmonie.tab'); } catch (err) { /* stockage indisponible */ }
-    activate(saved || DEFAULT);
+    activate(valid(saved) ? saved : DEFAULT);
   })();
 </script>
 <script>
-  // Bouton Lecture flottant pour mobile : simple miroir de #play, mis à jour par observation du texte.
+  // Barre d'actions mobile : les deux boutons renvoient simplement vers leurs homologues du transport, et le libellé Lecture suit l'état de #play.
   (function () {
-    const btn = document.getElementById('miniPlayBtn'), play = document.getElementById('play');
-    if (!btn || !play) return;
-    const sync = () => { btn.textContent = play.textContent.startsWith('■') ? '■' : '▶'; };
-    btn.addEventListener('click', () => play.click());
-    new MutationObserver(sync).observe(play, { childList: true, characterData: true, subtree: true });
-    sync();
+    const play = document.getElementById('play'), regen = document.getElementById('regenAll');
+    const bPlay = document.getElementById('miniPlayBtn'), bRegen = document.getElementById('miniRegenBtn');
+    if (bPlay && play) {
+      const sync = () => { bPlay.textContent = play.textContent.startsWith('■') ? '■ Stop' : '▶ Lecture'; };
+      bPlay.addEventListener('click', () => play.click());
+      new MutationObserver(sync).observe(play, { childList: true, characterData: true, subtree: true });
+      sync();
+    }
+    if (bRegen && regen) bRegen.addEventListener('click', () => regen.click());
   })();
 </script>
 <script>

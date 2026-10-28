@@ -517,9 +517,11 @@ Les deux habillages affichent les mêmes fonctions et les mêmes libellés. Les 
 
 Sous un écran étroit (≤ 760 px de large), l'interface passe en mode à onglets pour éviter les grands scrolls.
 
-- Une barre d'onglets collante en haut de l'écran propose six sections : **Général**, **Accords**, **Basse**, **Mélodie**, **Batterie**, **Morceau**. Les quatre onglets d'instruments pointent chacun sur un seul panneau de la zone **Instruments** ; les onglets **Général** et **Morceau** pointent sur leur zone respective.
-- L'onglet choisi est mémorisé (`harmonie.tab`) et réappliqué au chargement suivant.
-- Un bouton **Lecture** flottant en bas à droite est visible dans tous les onglets sauf **Général** (où le vrai bouton de la barre de transport est déjà sous les yeux). Il déclenche le même bouton `#play` et reflète son état (▶ / ■).
+- Une barre d'onglets collante en haut de l'écran propose cinq sections, dans cet ordre : **Général**, **Instruments**, **Grille**, **Carte**, **Disque**.
+  - **Général** et **Instruments** affichent leur zone (la zone Instruments contient toujours les quatre panneaux empilés).
+  - **Grille**, **Carte** et **Disque** affichent la zone Morceau en forçant la vue correspondante du sélecteur interne (`#view`), lequel est alors masqué puisqu'il devient redondant avec les onglets.
+- L'onglet choisi est mémorisé (`harmonie.tab`) et réappliqué au chargement suivant. Une valeur mémorisée inconnue retombe sur **Général**.
+- Une barre d'actions fixée en bas de l'écran est toujours visible et contient **Lecture** (miroir de `#play`, suit son état ▶ / ■) et **Tout régénérer** (miroir de `#regenAll`).
 - Les bandes **Famille** et **Style** passent en défilement horizontal sans enroulage.
 - Au-dessus du breakpoint, aucun des éléments ci-dessus n'est visible : le `data-tab` posé sur `<body>` n'a plus d'effet et la mise en page reste celle du desktop.
 
