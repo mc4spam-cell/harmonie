@@ -17,7 +17,7 @@ Quand un comportement change, mettre à jour `docs/SPECIFICATIONS.md` dans le m�
 - **Mesures** : 2/4 à 12/8.
   - Les motifs 4/4 sont redistribués sur la mesure (`toMeter`, `compPos`). Pour 3/4, 6/8, 7/8 et 12/8, des motifs propres optionnels existent (`METER_COMPS`, `METER_KITS`).
   - Un style peut déclarer sa mesure naturelle (`meter`) ; choisir un style la pose.
-- **Habillage** : « Studio » par défaut (minimal, filets très fins, une seule couleur d'accent) ; « Classique » reste disponible derrière un sélecteur.
+- **Habillage** : « Classique » par défaut (panneaux de fond, bordures arrondies, boutons à fond plein) ; « Studio » (minimal, filets très fins, une seule couleur d'accent) reste disponible derrière un sélecteur.
 - **Doigtés** : les vues basse et guitare sont toutes deux horizontales, corde aiguë en haut et sillet à gauche, par souci de cohérence demandé par l'utilisateur.
 
 ## Règles techniques

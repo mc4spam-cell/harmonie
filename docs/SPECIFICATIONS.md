@@ -508,8 +508,8 @@ Le clic sur le fond de la fenêtre des raccourcis la ferme.
 
 Deux habillages, choisis par le sélecteur **Classique / Studio** de l'en-tête. Le choix est mémorisé (`harmonie.look`) et appliqué avant l'affichage, pour éviter un clignotement.
 
-- **Studio** (par défaut) : filets très fins, sans fond des panneaux, typographie légère, une seule couleur d'accent (sable). Boutons en texte, sélecteurs soulignés, curseurs en trait fin. Les titres de zone sont posés sur la bordure.
-- **Classique** : l'habillage de base de la feuille de style, avec des panneaux de fond (`--panel`), des bordures arrondies et des boutons à fond plein pour l'accent.
+- **Classique** (par défaut) : l'habillage de base de la feuille de style, avec des panneaux de fond (`--panel`), des bordures arrondies et des boutons à fond plein pour l'accent.
+- **Studio** : filets très fins, sans fond des panneaux, typographie légère, une seule couleur d'accent (sable). Boutons en texte, sélecteurs soulignés, curseurs en trait fin. Les titres de zone sont posés sur la bordure.
 
 Les deux habillages affichent les mêmes fonctions et les mêmes libellés. Les couleurs de fonction (T, SD, D) sont définies sur `:root` et ne sont pas redéfinies par « Studio » : elles s'affichent donc dans les deux.
 

@@ -243,13 +243,17 @@
     .grid { grid-template-columns: repeat(var(--cols-narrow, 16), 1fr); }
     .d-top, .d-sug { grid-template-columns: 1fr; }
 
-    main { padding: 10px 14px 90px; }
-    header { margin-bottom: 8px; gap: 10px; }
-    h1 { font-size: 20px; }
-    header p { font-size: 12px; width: 100%; order: 3; }
+    /* En-tête condensé : titre plus petit, sous-titre masqué, bascule d'habillage et bouton d'aide ramenés. */
+    main { padding: 8px 12px 88px; }
+    header { margin-bottom: 6px; gap: 8px; align-items: center; }
+    h1 { font-size: 18px; }
+    header p { display: none; }
+    #look button { padding: 2px 8px; font-size: 10px; }
+    #help { width: 26px; height: 26px; padding: 0; font-size: 12px; }
 
-    .tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; z-index: 10; margin: 0 -14px 12px; padding: 8px 14px; background: var(--bg); border-bottom: 1px solid var(--line); }
+    .tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; z-index: 10; margin: 0 -12px 10px; padding: 6px 12px; background: var(--bg); border-bottom: 1px solid var(--line); }
     .tabs::-webkit-scrollbar { display: none; }
+    .tabs button { padding: 6px 12px; font-size: 12px; }
 
     /* Masque toutes les zones ; l'onglet actif réaffiche la sienne. Grille, Carte et Disque pointent sur la zone Morceau en forçant la vue correspondante. */
     body[data-tab] main > section.zone { display: none; }
@@ -260,26 +264,53 @@
     body[data-tab="disc"]        main > section[aria-labelledby="zGrid"] { display: block; }
     /* Dans les onglets de vue, le sélecteur Grille/Disque/Carte est redondant avec les onglets. */
     body[data-tab="grid"] #view, body[data-tab="map"] #view, body[data-tab="disc"] #view { display: none; }
-    .parts { grid-template-columns: 1fr; }
+    .parts { grid-template-columns: 1fr; gap: 8px; }
+
+    /* Zones et contrôles plus serrés. */
+    .zone { margin-bottom: 12px; }
+    .zone > h2 { font-size: 10px; margin-bottom: 6px; }
+    .zhead { margin-bottom: 6px; }
+    .controls { padding: 10px 12px 0; gap: 8px 14px; }
+    .field { gap: 4px; }
+    .field > label { font-size: 10px; }
+    .field.wide { flex-basis: 100%; }
+    input[type=range] { width: 100%; }
 
     /* Bandes famille / style : scroll horizontal au lieu d'enroulage. */
     #family, #style { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; max-width: 100%; }
     #family::-webkit-scrollbar, #style::-webkit-scrollbar { display: none; }
     #family button, #style button { white-space: nowrap; flex: none; margin-bottom: 0; border-bottom: 0; }
-    .controls { padding: 14px 14px 0; gap: 12px 16px; }
-    .field.wide { flex-basis: 100%; }
-    input[type=range] { width: 100%; }
 
-    /* Panneau d'instrument : étend les contrôles pour les gros doigts. */
-    .part select, .part input[type=range], .part output { font-size: 14px; }
+    /* Transport : Lecture et Tout régénérer sont dans la barre d'actions, on les masque ici pour éviter le doublon. */
+    .transport { margin: 10px 0 0; gap: 6px; }
+    .transport #play, .transport #regenAll { display: none; }
+
+    /* Panneau d'instrument : padding, marges et libellés rognés pour tenir plus de panneaux à l'écran. */
+    .part { padding: 10px 12px; border-radius: 10px; }
+    .part header { margin: 0 0 8px; gap: 8px; }
+    .part h3 { font-size: 14px; }
+    .part .regen { padding: 3px 7px; font-size: 11px; }
+    .part .rows { gap: 6px 10px; }
+    .part .rows > label { font-size: 11px; }
+    .part select { padding: 4px 8px; font-size: 13px; }
+    .part input[type=range] { width: 100%; }
+    .part output { font-size: 12px; }
+
+    /* Les boutons des sélecteurs internes (Piano/Basse/Guitare, Grille/Disque/Carte) tiennent plus serrés. */
+    .seg button { padding: 5px 10px; font-size: 12px; }
+
+    /* Pied de page explicatif : masqué sous le breakpoint, les tooltips restent sur chaque réglage. */
+    footer { display: none; }
 
     /* Barre d'actions : toujours visible sous le breakpoint. */
     .miniplay { display: flex; }
 
-    /* Habillage Studio : ramène les marges confortables pour l'écran étroit. */
-    html[data-look="studio"] main { padding: 10px 14px 90px; }
-    html[data-look="studio"] .zone { padding: 26px 18px 20px; }
-    html[data-look="studio"] header { margin-bottom: 8px; }
+    /* Habillage Studio : paddings et marges rognés quand il est actif en mobile. */
+    html[data-look="studio"] main { padding: 8px 12px 88px; }
+    html[data-look="studio"] .zone { padding: 22px 16px 16px; margin-bottom: 14px; }
+    html[data-look="studio"] header { margin-bottom: 10px; }
+    html[data-look="studio"] h1 { font-size: 20px; }
+    html[data-look="studio"] .part { padding: 12px 14px 10px; }
   }
 
   /* ===================== Habillage « Studio » : minimal, filets fins, une seule couleur d'accent ===================== */
@@ -451,7 +482,7 @@
 </style>
 <script>
   // Habillage choisi (Studio par défaut), appliqué avant l'affichage pour éviter un clignotement.
-  try { document.documentElement.dataset.look = localStorage.getItem('harmonie.look') || 'studio'; } catch (e) { document.documentElement.dataset.look = 'studio'; }
+  try { document.documentElement.dataset.look = localStorage.getItem('harmonie.look') || 'classic'; } catch (e) { document.documentElement.dataset.look = 'classic'; }
 </script>
 </head>
 <body>

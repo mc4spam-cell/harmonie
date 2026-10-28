@@ -33,7 +33,7 @@ Les réglages et la grille en cours sont enregistrés dans le navigateur de chaq
   - la carte, qui place chaque accord selon sa fonction harmonique.
 - **Notes de l'accord** en vue piano, basse ou guitare, avec doigtés pour la basse et la guitare.
 - **Export MIDI** de ce qu'on entend : une piste par instrument (accords, basse, mélodie, batterie sur le canal 10), avec tempo, mesure et un marqueur par accord. La grille peut aussi être copiée en texte.
-- **Deux habillages** : « Studio » (par défaut) et « Classique ».
+- **Deux habillages** : « Classique » (par défaut) et « Studio ».
 
 ## Raccourcis
 
