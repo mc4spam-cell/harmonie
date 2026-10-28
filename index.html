@@ -230,9 +230,64 @@
   #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 8px 14px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; }
   #toast.on { opacity: 1; }
 
+  /* Onglets mobiles : barre collante en haut, un onglet par section ; invisibles au-dessus du breakpoint. */
+  .tabs { display: none; }
+  .tabs button { flex: none; padding: 7px 14px; font-size: 13px; background: transparent; border: 1px solid var(--line); border-radius: 99px; white-space: nowrap; }
+  .tabs button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  /* Bouton Lecture flottant : miroir de #play, visible seulement sur mobile hors onglet Général. */
+  .miniplay { display: none; position: fixed; right: 14px; bottom: 14px; z-index: 20; }
+  .miniplay button { width: 58px; height: 58px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); border: 0; font-size: 20px; font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,.35); cursor: pointer; }
+
   @media (max-width: 760px) {
     .grid { grid-template-columns: repeat(var(--cols-narrow, 16), 1fr); }
     .d-top, .d-sug { grid-template-columns: 1fr; }
+
+    main { padding: 10px 14px 90px; }
+    header { margin-bottom: 8px; gap: 10px; }
+    h1 { font-size: 20px; }
+    header p { font-size: 12px; width: 100%; order: 3; }
+
+    .tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; z-index: 10; margin: 0 -14px 12px; padding: 8px 14px; background: var(--bg); border-bottom: 1px solid var(--line); }
+    .tabs::-webkit-scrollbar { display: none; }
+
+    /* Masque toutes les zones ; l'onglet actif réaffiche la sienne. */
+    body[data-tab] main > section.zone { display: none; }
+    body[data-tab="general"] main > section[aria-labelledby="zGeneral"],
+    body[data-tab="song"]    main > section[aria-labelledby="zGrid"],
+    body[data-tab="chords"]  main > section[aria-labelledby="zParts"],
+    body[data-tab="bass"]    main > section[aria-labelledby="zParts"],
+    body[data-tab="mel"]     main > section[aria-labelledby="zParts"],
+    body[data-tab="drums"]   main > section[aria-labelledby="zParts"] { display: block; }
+    body[data-tab="chords"] .part:not([data-part="chords"]),
+    body[data-tab="bass"]   .part:not([data-part="bass"]),
+    body[data-tab="mel"]    .part:not([data-part="mel"]),
+    body[data-tab="drums"]  .part:not([data-part="drums"]) { display: none; }
+    .parts { grid-template-columns: 1fr; }
+    /* Le titre « Instruments » n'a plus de sens quand un seul panneau s'affiche. */
+    body[data-tab="chords"] h2#zParts,
+    body[data-tab="bass"]   h2#zParts,
+    body[data-tab="mel"]    h2#zParts,
+    body[data-tab="drums"]  h2#zParts { display: none; }
+
+    /* Bandes famille / style : scroll horizontal au lieu d'enroulage. */
+    #family, #style { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; max-width: 100%; }
+    #family::-webkit-scrollbar, #style::-webkit-scrollbar { display: none; }
+    #family button, #style button { white-space: nowrap; flex: none; margin-bottom: 0; border-bottom: 0; }
+    .controls { padding: 14px 14px 0; gap: 12px 16px; }
+    .field.wide { flex-basis: 100%; }
+    input[type=range] { width: 100%; }
+
+    /* Panneau d'instrument : étend les contrôles pour les gros doigts. */
+    .part select, .part input[type=range], .part output { font-size: 14px; }
+
+    /* FAB : visible partout sauf dans Général (où le vrai bouton est déjà sous les yeux). */
+    .miniplay { display: block; }
+    body[data-tab="general"] .miniplay { display: none; }
+
+    /* Habillage Studio : ramène les marges confortables pour l'écran étroit. */
+    html[data-look="studio"] main { padding: 10px 14px 90px; }
+    html[data-look="studio"] .zone { padding: 26px 18px 20px; }
+    html[data-look="studio"] header { margin-bottom: 8px; }
   }
 
   /* ===================== Habillage « Studio » : minimal, filets fins, une seule couleur d'accent ===================== */
@@ -416,6 +471,15 @@
     <button id="help" aria-label="Raccourcis clavier" title="Raccourcis clavier" aria-haspopup="dialog" aria-expanded="false">i</button>
   </header>
 
+  <nav id="tabs" class="tabs" role="tablist" aria-label="Sections">
+    <button data-v="general" role="tab">Général</button>
+    <button data-v="chords"  role="tab">Accords</button>
+    <button data-v="bass"    role="tab">Basse</button>
+    <button data-v="mel"     role="tab">Mélodie</button>
+    <button data-v="drums"   role="tab">Batterie</button>
+    <button data-v="song"    role="tab">Morceau</button>
+  </nav>
+
   <section class="zone" aria-labelledby="zGeneral">
     <h2 id="zGeneral">Général</h2>
     <div class="controls">
@@ -471,6 +535,7 @@
     Survole un réglage d'instrument pour voir ce qu'il fait.
   </footer>
 </main>
+<div id="miniplay" class="miniplay"><button id="miniPlayBtn" aria-label="Lecture / Pause" title="Lecture / Pause">▶</button></div>
 <div id="toast"></div>
 <dialog id="shortcuts" class="sheet" aria-labelledby="scTitle">
   <form method="dialog" class="sheet-head">
@@ -510,6 +575,34 @@
     btn.addEventListener('click', () => { btn.setAttribute('aria-expanded', 'true'); dlg.showModal(); });
     dlg.addEventListener('close', () => btn.setAttribute('aria-expanded', 'false'));
     dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); }); // clic sur le fond
+  })();
+</script>
+<script>
+  // Onglets mobiles : au-dessus du breakpoint le nav est caché par CSS, le data-tab n'a aucun effet. Le choix est mémorisé.
+  (function () {
+    const nav = document.getElementById('tabs');
+    if (!nav) return;
+    const DEFAULT = 'general';
+    const activate = v => {
+      document.body.dataset.tab = v;
+      for (const b of nav.children) b.classList.toggle('on', b.dataset.v === v);
+      try { localStorage.setItem('harmonie.tab', v); } catch (err) { /* stockage indisponible */ }
+    };
+    nav.addEventListener('click', e => { const v = e.target.dataset.v; if (v) activate(v); });
+    let saved = null;
+    try { saved = localStorage.getItem('harmonie.tab'); } catch (err) { /* stockage indisponible */ }
+    activate(saved || DEFAULT);
+  })();
+</script>
+<script>
+  // Bouton Lecture flottant pour mobile : simple miroir de #play, mis à jour par observation du texte.
+  (function () {
+    const btn = document.getElementById('miniPlayBtn'), play = document.getElementById('play');
+    if (!btn || !play) return;
+    const sync = () => { btn.textContent = play.textContent.startsWith('■') ? '■' : '▶'; };
+    btn.addEventListener('click', () => play.click());
+    new MutationObserver(sync).observe(play, { childList: true, characterData: true, subtree: true });
+    sync();
   })();
 </script>
 <script>

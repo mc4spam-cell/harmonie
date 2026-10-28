@@ -513,7 +513,17 @@ Deux habillages, choisis par le sélecteur **Classique / Studio** de l'en-tête.
 
 Les deux habillages affichent les mêmes fonctions et les mêmes libellés. Les couleurs de fonction (T, SD, D) sont définies sur `:root` et ne sont pas redéfinies par « Studio » : elles s'affichent donc dans les deux.
 
-## 15. Points à confirmer et écarts relevés
+## 15. Version mobile
+
+Sous un écran étroit (≤ 760 px de large), l'interface passe en mode à onglets pour éviter les grands scrolls.
+
+- Une barre d'onglets collante en haut de l'écran propose six sections : **Général**, **Accords**, **Basse**, **Mélodie**, **Batterie**, **Morceau**. Les quatre onglets d'instruments pointent chacun sur un seul panneau de la zone **Instruments** ; les onglets **Général** et **Morceau** pointent sur leur zone respective.
+- L'onglet choisi est mémorisé (`harmonie.tab`) et réappliqué au chargement suivant.
+- Un bouton **Lecture** flottant en bas à droite est visible dans tous les onglets sauf **Général** (où le vrai bouton de la barre de transport est déjà sous les yeux). Il déclenche le même bouton `#play` et reflète son état (▶ / ■).
+- Les bandes **Famille** et **Style** passent en défilement horizontal sans enroulage.
+- Au-dessus du breakpoint, aucun des éléments ci-dessus n'est visible : le `data-tab` posé sur `<body>` n'a plus d'effet et la mise en page reste celle du desktop.
+
+## 16. Points à confirmer et écarts relevés
 
 1. **Numérotation des programmes** : les valeurs écrites (33 pour la basse, 80 pour la mélodie, et celles de la table de la section 12) sont des octets de changement de programme, donc comptées à partir de 0. Les noms de la section 12 reprennent les commentaires de `GM_PROGRAM` dans `app.js` ; à confirmer dans un logiciel de séquençage.
 2. **Strum** : la lecture égrène les notes des accords de 6 ms (motif) ou 8 ms (plaqués). L'export les place au même instant.
