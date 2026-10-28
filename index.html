@@ -166,7 +166,10 @@
   #detail { margin-top: 16px; padding: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
   #detail:empty { display: none; }
   .d-top { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; }
+  .d-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 6px; }
   .d-name { font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+  .d-head .d-meta { margin: 0; }
+  .d-head #instrView { margin: 0 0 0 auto; }
   .d-meta { display: flex; gap: 8px; align-items: center; margin: 2px 0 8px; }
   .badge { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--fn); color: var(--fn); }
   .why { margin: 0 0 12px; color: var(--muted); }
@@ -276,8 +279,11 @@
     .field.wide { flex-basis: 100%; }
     input[type=range] { width: 100%; }
 
-    /* Bandes famille / style : scroll horizontal au lieu d'enroulage. */
-    #family, #style { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; max-width: 100%; }
+    /* Bandes famille / style : scroll horizontal au lieu d'enroulage. Le display: flex (au lieu d'inline-flex)
+       plus min-width: 0 à la fois sur la bande et sur son .field.wide parent évitent que les boutons poussent
+       la bande au-delà du cadre. */
+    .controls .field.wide { min-width: 0; max-width: 100%; }
+    #family, #style { display: flex; width: 100%; min-width: 0; max-width: 100%; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
     #family::-webkit-scrollbar, #style::-webkit-scrollbar { display: none; }
     #family button, #style button { white-space: nowrap; flex: none; margin-bottom: 0; border-bottom: 0; }
 
@@ -301,6 +307,23 @@
 
     /* Pied de page explicatif : masqué sous le breakpoint, les tooltips restent sur chaque réglage. */
     footer { display: none; }
+
+    /* Détail de l'accord : nom, badges et sélecteur Piano/Basse/Guitare alignés sur la même ligne pour gagner en hauteur. */
+    #detail { padding: 12px; margin-top: 12px; }
+    .d-top { gap: 10px; }
+    .d-name { font-size: 22px; }
+    .d-head { gap: 6px 10px; margin-bottom: 4px; }
+    .d-head #instrView { margin-left: auto; }
+    .d-head #instrView button { padding: 3px 9px; font-size: 11px; }
+    .d-meta .badge { font-size: 11px; padding: 1px 7px; }
+    .why { margin: 0 0 8px; font-size: 13px; }
+
+    /* Carte harmonique : SVG scrollable horizontalement pour que les colonnes T/SD/D restent lisibles sur un écran étroit. */
+    .map { padding: 10px 12px 12px; }
+    .map-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -12px; padding: 0 12px; }
+    .map-scroll svg { min-width: 620px; }
+    .map-bar { gap: 6px 10px; }
+    .map-cap { font-size: 13px; }
 
     /* Barre d'actions : toujours visible sous le breakpoint. */
     .miniplay { display: flex; }

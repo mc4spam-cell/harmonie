@@ -524,10 +524,10 @@
         <div class="seg" id="mapClick">${[['listen', 'Écouter'], ['insert', 'Insérer après'], ['replace', 'Remplacer']].map(([v, l]) => `<button data-v="${v}" class="${mapClick === v ? 'on' : ''}">${l}</button>`).join('')}</div>
         <button id="mapAll" class="toggle${mapAll ? ' on' : ''}" title="Afficher toutes les transitions possibles dans ce style">Toutes les transitions</button>
       </div>
-      <svg viewBox="0 0 980 ${L.height}" role="img" aria-label="Carte harmonique de la tonalité">
+      <div class="map-scroll"><svg viewBox="0 0 980 ${L.height}" role="img" aria-label="Carte harmonique de la tonalité">
         <defs>${arrow('mArrowSong', 'a-song')}${arrow('mArrowRes', 'a-res')}${['T', 'SD', 'D'].map(fn => arrow('mArrow-' + fn, 'a-' + fn)).join('')}</defs>
         ${html}${nodesHtml}${labels}
-      </svg>
+      </svg></div>
       <div class="map-foot">
         <div class="map-cap" id="mapCap">${mapCaption(F, L)}</div>
         <div class="legend"><span class="l-song">chemin du morceau (numéros = ordre)</span><span class="l-bor">emprunt</span><span class="l-sat">dominante secondaire → sa cible</span></div>
@@ -725,12 +725,16 @@
       <p class="hint">Arpège : ${path}</p></div></div>`;
   }
 
-  function instrumentView(c, ch) {
+  // Sélecteur Piano/Basse/Guitare, renvoyé séparément pour pouvoir l'ancrer à côté du nom de l'accord sur mobile.
+  function instrumentSelector() {
+    return `<div class="seg" id="instrView">${[['piano', 'Piano'], ['bass', 'Basse'], ['guitar', 'Guitare']].map(([v, l]) =>
+      `<button data-v="${v}" class="${v === S.instrView ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  }
+  function instrumentDiagram(c, ch) {
     const iv = H.Q[ch.q].iv;
     const view = S.instrView === 'guitar' ? guitarView(c, iv) : S.instrView === 'bass' ? bassView(c, iv) : keyboard(c);
     const legend = S.instrView === 'piano' ? '' : '<div class="legend"><span class="l-root">fondamentale</span><span class="l-ct">notes de l\'accord</span><span class="l-fg">chiffres : doigts (1 index … 4 auriculaire), 0 ou o : à vide, × : étouffée</span></div>';
-    return `<div class="seg" id="instrView">${[['piano', 'Piano'], ['bass', 'Basse'], ['guitar', 'Guitare']].map(([v, l]) =>
-      `<button data-v="${v}" class="${v === S.instrView ? 'on' : ''}">${l}</button>`).join('')}</div>${view}${legend}`;
+    return view + legend;
   }
 
   function chip(s, i, kind) {
@@ -759,8 +763,11 @@
     $('#detail').innerHTML = `
       <div class="d-top">
         <div>
-          <div class="d-name">${pretty(c.name)}</div>
-          <div class="d-meta fn-${ch.func}"><span class="badge">${ch.roman}</span><span class="badge">${FN[ch.func]}</span></div>
+          <div class="d-head">
+            <div class="d-name">${pretty(c.name)}</div>
+            <div class="d-meta fn-${ch.func}"><span class="badge">${ch.roman}</span><span class="badge">${FN[ch.func]}</span></div>
+            ${instrumentSelector()}
+          </div>
           <p class="why">${ch.why}</p>
           <div class="row" style="flex-wrap:wrap">
             <span class="hint">Durée</span>
@@ -772,7 +779,7 @@
         <div>
           <h4>Notes de l'accord</h4>
           <div class="notes">${c.notes.map(pretty).join('  ')}</div>
-          ${instrumentView(c, ch)}
+          ${instrumentDiagram(c, ch)}
           <h4>Mode conseillé</h4>
           <div class="modeline">${pretty(c.root)} ${c.mode}</div>
           <div class="notes">${c.scaleNotes.map(pretty).join('  ')}</div>
