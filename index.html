@@ -106,6 +106,21 @@
   .disc-info .legend span::before { background: var(--fn); }
   @media (max-width: 760px) { .disc { grid-template-columns: 1fr; } }
   .map { padding: 14px 16px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+
+  /* Indicateurs de scroll horizontal : < à gauche, > à droite, en surimpression sur les zones scrollables
+     (bandes famille/style de l'onglet Général, carte harmonique). Hors de la media query mobile pour que
+     les <span> dans le DOM restent masqués par défaut (display: none) même sur desktop ; un contrôleur JS
+     bascule la classe .show au gré du scroll. */
+  .hscroll, .map-wrap { position: relative; }
+  .hs-arrow {
+    position: absolute; top: 0; bottom: 0; width: 26px;
+    display: none; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700; color: var(--muted);
+    pointer-events: none; z-index: 3;
+  }
+  .hs-arrow.show { display: flex; }
+  .hs-left  { left: 0;  background: linear-gradient(to right, var(--panel) 45%, transparent); border-radius: 8px 0 0 8px; }
+  .hs-right { right: 0; background: linear-gradient(to left,  var(--panel) 45%, transparent); border-radius: 0 8px 8px 0; }
   .map-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px; }
   .map-bar .seg button, .map-bar > button { padding: 4px 10px; font-size: 13px; }
   .map svg { width: 100%; height: auto; display: block; user-select: none; }
@@ -318,9 +333,11 @@
     .d-meta .badge { font-size: 11px; padding: 1px 7px; }
     .why { margin: 0 0 8px; font-size: 13px; }
 
-    /* Carte harmonique : SVG scrollable horizontalement pour que les colonnes T/SD/D restent lisibles sur un écran étroit. */
+    /* Carte harmonique : SVG scrollable horizontalement pour que les colonnes T/SD/D restent lisibles sur un écran étroit.
+       Le négatif margin est porté par .map-wrap pour que les flèches < > restent alignées sur les bords du panneau. */
     .map { padding: 10px 12px 12px; }
-    .map-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -12px; padding: 0 12px; }
+    .map-wrap { margin: 0 -12px; }
+    .map-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 12px; }
     .map-scroll svg { min-width: 620px; }
     .map-bar { gap: 6px 10px; }
     .map-cap { font-size: 13px; }
@@ -528,8 +545,20 @@
   <section class="zone" aria-labelledby="zGeneral">
     <h2 id="zGeneral">Général</h2>
     <div class="controls">
-      <div class="field wide"><label>Famille</label><div class="seg" id="family"></div></div>
-      <div class="field wide"><label>Style</label><div class="seg" id="style"></div></div>
+      <div class="field wide"><label>Famille</label>
+        <div class="hscroll">
+          <div class="seg" id="family"></div>
+          <span class="hs-arrow hs-left" aria-hidden="true">‹</span>
+          <span class="hs-arrow hs-right" aria-hidden="true">›</span>
+        </div>
+      </div>
+      <div class="field wide"><label>Style</label>
+        <div class="hscroll">
+          <div class="seg" id="style"></div>
+          <span class="hs-arrow hs-left" aria-hidden="true">‹</span>
+          <span class="hs-arrow hs-right" aria-hidden="true">›</span>
+        </div>
+      </div>
       <div class="field"><label for="tonic">Tonalité</label>
         <div class="row"><select id="tonic"></select>
           <div class="seg" id="mode"><button data-v="0">Majeur</button><button data-v="1">Mineur</button></div></div>
@@ -660,6 +689,47 @@
       sync();
     }
     if (bRegen && regen) bRegen.addEventListener('click', () => regen.click());
+  })();
+</script>
+<script>
+  // Indicateurs de scroll horizontal : pour chaque zone qui peut déborder (bandes famille/style,
+  // carte harmonique), on affiche une flèche < à gauche et > à droite seulement s'il reste du
+  // contenu à voir dans la direction concernée. Les flèches sont dans le DOM, cachées par
+  // défaut ; ce script bascule la classe .show sur chacune au gré du scroll.
+  (function () {
+    const update = (sc, L, R) => {
+      const max = sc.scrollWidth - sc.clientWidth;
+      const x = sc.scrollLeft;
+      L.classList.toggle('show', max > 1 && x > 1);
+      R.classList.toggle('show', max > 1 && x < max - 1);
+    };
+    const attach = sc => {
+      if (!sc || sc.__hsAttached) return;
+      const p = sc.parentElement;
+      if (!p) return;
+      const L = p.querySelector(':scope > .hs-left'), R = p.querySelector(':scope > .hs-right');
+      if (!L || !R) return;
+      sc.__hsAttached = true;
+      const u = () => update(sc, L, R);
+      sc.addEventListener('scroll', u, { passive: true });
+      new ResizeObserver(u).observe(sc);
+      u();
+    };
+    const scan = () => {
+      attach(document.getElementById('family'));
+      attach(document.getElementById('style'));
+      attach(document.querySelector('#map .map-scroll'));
+    };
+    // La carte est régénérée à chaque renderMap() ; les bandes famille/style sont peuplées
+    // après le chargement d'app.js. On observe les deux conteneurs pour (ré)attacher.
+    const mapEl = document.getElementById('map');
+    if (mapEl) new MutationObserver(scan).observe(mapEl, { childList: true, subtree: true });
+    const famEl = document.getElementById('family'), styEl = document.getElementById('style');
+    if (famEl) new MutationObserver(scan).observe(famEl, { childList: true });
+    if (styEl) new MutationObserver(scan).observe(styEl, { childList: true });
+    window.addEventListener('resize', scan);
+    window.addEventListener('load', scan);
+    scan();
   })();
 </script>
 <script>

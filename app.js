@@ -524,10 +524,14 @@
         <div class="seg" id="mapClick">${[['listen', 'Écouter'], ['insert', 'Insérer après'], ['replace', 'Remplacer']].map(([v, l]) => `<button data-v="${v}" class="${mapClick === v ? 'on' : ''}">${l}</button>`).join('')}</div>
         <button id="mapAll" class="toggle${mapAll ? ' on' : ''}" title="Afficher toutes les transitions possibles dans ce style">Toutes les transitions</button>
       </div>
-      <div class="map-scroll"><svg viewBox="0 0 980 ${L.height}" role="img" aria-label="Carte harmonique de la tonalité">
-        <defs>${arrow('mArrowSong', 'a-song')}${arrow('mArrowRes', 'a-res')}${['T', 'SD', 'D'].map(fn => arrow('mArrow-' + fn, 'a-' + fn)).join('')}</defs>
-        ${html}${nodesHtml}${labels}
-      </svg></div>
+      <div class="map-wrap">
+        <div class="map-scroll"><svg viewBox="0 0 980 ${L.height}" role="img" aria-label="Carte harmonique de la tonalité">
+          <defs>${arrow('mArrowSong', 'a-song')}${arrow('mArrowRes', 'a-res')}${['T', 'SD', 'D'].map(fn => arrow('mArrow-' + fn, 'a-' + fn)).join('')}</defs>
+          ${html}${nodesHtml}${labels}
+        </svg></div>
+        <span class="hs-arrow hs-left" aria-hidden="true">‹</span>
+        <span class="hs-arrow hs-right" aria-hidden="true">›</span>
+      </div>
       <div class="map-foot">
         <div class="map-cap" id="mapCap">${mapCaption(F, L)}</div>
         <div class="legend"><span class="l-song">chemin du morceau (numéros = ordre)</span><span class="l-bor">emprunt</span><span class="l-sat">dominante secondaire → sa cible</span></div>
