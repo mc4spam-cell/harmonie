@@ -525,7 +525,17 @@ Sous un écran étroit (≤ 760 px de large), l'interface passe en mode à ongle
 - Les bandes **Famille** et **Style** passent en défilement horizontal sans enroulage.
 - Au-dessus du breakpoint, aucun des éléments ci-dessus n'est visible : le `data-tab` posé sur `<body>` n'a plus d'effet et la mise en page reste celle du desktop.
 
-## 16. Points à confirmer et écarts relevés
+## 16. Langues
+
+À droite du bouton d'aide, un sélecteur en forme de drapeau ouvre une grille des dix langues les plus parlées au monde : anglais 🇬🇧 (par défaut), chinois 🇨🇳, hindi 🇮🇳, espagnol 🇪🇸, français 🇫🇷, arabe 🇸🇦, bengali 🇧🇩, portugais 🇧🇷, russe 🇷🇺, ourdou 🇵🇰. Le choix est mémorisé (`harmonie.lang`) et appliqué dès le chargement.
+
+- Les traductions couvrent toute l'interface : en-tête, onglets, zones, contrôles, boutons de transport, panneaux d'instruments, grille, carte harmonique, détail d'accord, diagrammes d'instrument, pied de page, raccourcis, toasts. Les noms de familles, d'ambiances, de modes et de fonctions harmoniques (Tonique, Sous-dominante, Dominante) sont également traduits.
+- Les **noms des 111 styles** restent dans la langue d'origine (anglicismes et noms propres universels : *Djent*, *Shoegaze*, *Boom bap*, *Trap*…). Les étiquettes de mesure (`4/4`, `6/8`) non plus — c'est de la notation musicale.
+- L'arabe et l'ourdou appliquent `dir="rtl"` sur `<html>` ; le reste des langues reste en `ltr`.
+- Les éléments statiques du HTML sont marqués `data-i18n="clé"` ou `data-i18n-attr="attr:clé"` ; les textes dynamiques générés par `app.js` passent par `t('clé', …)`. Un changement de langue déclenche l'événement `langchange`, qui re-déclenche le rendu complet.
+- Les dictionnaires vivent dans `i18n-<code>.js` (un fichier par langue) et sont fusionnés par `i18n.js` au chargement. Le repli silencieux retourne la traduction anglaise, puis la clé elle-même si rien n'est trouvé.
+
+## 17. Points à confirmer et écarts relevés
 
 1. **Numérotation des programmes** : les valeurs écrites (33 pour la basse, 80 pour la mélodie, et celles de la table de la section 12) sont des octets de changement de programme, donc comptées à partir de 0. Les noms de la section 12 reprennent les commentaires de `GM_PROGRAM` dans `app.js` ; à confirmer dans un logiciel de séquençage.
 2. **Strum** : la lecture égrène les notes des accords de 6 ms (motif) ou 8 ms (plaqués). L'export les place au même instant.

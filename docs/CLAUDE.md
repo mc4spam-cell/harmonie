@@ -6,8 +6,8 @@ Quand un comportement change, mettre à jour `docs/SPECIFICATIONS.md` dans le m�
 
 ## Décisions de conception
 
-- **Pas d'étape de compilation** : trois fichiers, `index.html`, `engine.js`, `app.js`, en JavaScript simple et sans dépendance.
-- **Interface, textes et commentaires en français.**
+- **Pas d'étape de compilation** : trois fichiers principaux, `index.html`, `engine.js`, `app.js`, en JavaScript simple et sans dépendance. Les traductions sont dans `i18n.js` + un fichier `i18n-<code>.js` par langue (10 langues), tous chargés par `index.html`.
+- **Commentaires du code en français.** L'interface est multilingue (voir section 16 de `SPECIFICATIONS.md`) ; l'anglais est la langue par défaut, et tout texte visible passe par `window.i18n.t('clé')` (ou `data-i18n="clé"` pour les éléments statiques).
 - **Moteur à base de règles de théorie musicale**, pas de statistiques sur un corpus.
 - **Génération et retouche** : on génère une grille complète, puis on la retouche accord par accord grâce aux suggestions.
 - **Organisation de l'interface** : une zone Général, puis un panneau par instrument (accords, basse, mélodie, batterie). Chaque panneau a les mêmes réglages : activation, mesures, couleur, jeu, variation, volume, dynamique, régénérer.

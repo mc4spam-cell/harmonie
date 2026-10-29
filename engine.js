@@ -1251,7 +1251,8 @@
       root: r.name, rootPc: r.pc, name: r.name + q.sym,
       notes: q.iv.map(x => spell(r.letter, r.pc, x % 12, STEP_OF[x]).name),
       pcs: q.iv.map(x => (r.pc + x) % 12),
-      mode: sc.name,
+      mode: sc.name,     // libellé français d'origine, conservé pour la compatibilité
+      modeKey: ch.mode,  // clé i18n (ion, dor, phr…) pour la traduction côté application
       scaleNotes: sc.iv.map((x, i) => (sc.iv.length === 7 ? spell(r.letter, r.pc, x, i).name : FLAT[(r.pc + x) % 12])),
       scalePcs: sc.iv.map(x => (r.pc + x) % 12),
     };

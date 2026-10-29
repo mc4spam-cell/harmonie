@@ -3,7 +3,9 @@
   const H = Harmony;
   const $ = s => document.querySelector(s);
   const pretty = s => s.replace(/b/g, '♭').replace(/#/g, '♯');
-  const FN = { T: 'Tonique', SD: 'Sous-dominante', D: 'Dominante' };
+  // i18n : raccourci t() avec repli silencieux si i18n absent (clé = texte final).
+  const t = (k, ...a) => (window.i18n ? window.i18n.t(k, ...a) : k);
+  const FN = new Proxy({}, { get: (_, k) => t('fn.' + k) });
   const STORE = 'harmonie.v1';
 
   // ---------- État ----------
@@ -137,7 +139,7 @@
     S.parts[id].on = true;
     save();
     renderControls();
-    toast(PART_UI[id].name + ' : nouvelle version');
+    toast(t('toast.partRegen', PART_UI()[id].name));
   }
   function regenAll() {
     pushUndo();
@@ -157,68 +159,71 @@
 
   // ---------- Rendu ----------
 
-  const BARS_MOTIF = [[0, 'Toute la grille'], [1, 'Motif de 1 mesure'], [2, 'Motif de 2 mesures'], [4, 'Motif de 4 mesures'], [8, 'Motif de 8 mesures']];
-  const PART_UI = {
+  // Les intitulés et les hints sont des clés résolues au vol : les listes sont figées, les textes suivent la langue.
+  const BARS_MOTIF = () => [0, 1, 2, 4, 8].map(n => [n, t('barsMotif.' + n)]);
+  const PART_UI = () => ({
     chords: {
-      name: 'Accords', regen: 'Nouvelle grille d’accords (G)',
-      plays: [['style', 'Motif du style'], ['block', 'Plaqués'], ['up', 'Arpège montant'], ['down', 'Arpège descendant'], ['updown', 'Arpège aller-retour'], ['random', 'Arpège aléatoire']],
-      bars: [[4, '4 mesures'], [8, '8 mesures'], [12, '12 mesures'], [16, '16 mesures']],
+      name: t('part.chords.name'), regen: t('part.chords.regen'),
+      plays: ['style', 'block', 'up', 'down', 'updown', 'random'].map(k => [k, t('part.chords.play.' + k)]),
+      bars: [4, 8, 12, 16].map(n => [n, t('chordBars.' + n)]),
       extra: [
-        { k: 'reg', label: 'Registre', hint: 'Hauteur des accords', options: [[-1, 'Grave'], [0, 'Médium'], [1, 'Aigu']] },
-        { k: 'dens', label: 'Densité', hint: 'De l’accord tenu au motif chargé (jeu « Motif du style »)', range: true },
+        { k: 'reg', label: t('part.chords.reg'), hint: t('part.chords.reg.hint'),
+          options: [[-1, t('part.chords.reg.low')], [0, t('part.chords.reg.mid')], [1, t('part.chords.reg.high')]] },
+        { k: 'dens', label: t('part.chords.dens'), hint: t('part.chords.dens.hint'), range: true },
       ],
-      hint: { bars: 'Longueur de la grille (en génère une nouvelle)', color: 'Richesse des accords, à la prochaine grille', vari: 'Coups ajoutés ou retirés, arpèges retournés ou décalés' },
+      hint: { bars: t('part.chords.hint.bars'), color: t('part.chords.hint.color'), vari: t('part.chords.hint.vari') },
     },
     bass: {
-      name: 'Basse', regen: 'Nouvelle ligne de basse',
-      plays: [['style', 'Motif du style'], ['root', 'Fondamentale'], ['fifth', 'Fondamentale et quinte'], ['octave', 'Fondamentale et octave'], ['arp', 'Arpège'],
-        ['walk', 'Walking bass'], ['pedal', 'Pédale'], ['riff', 'Riff'], ['line', 'Ligne chantante'], ['random', 'Aléatoire']],
-      bars: BARS_MOTIF,
-      extra: [{ k: 'rhythm', label: 'Rythme', hint: 'Quand la basse joue. Sans effet avec le jeu « Motif du style » : choisis un autre jeu', show: P => P.play !== 'style',
-        options: [['auto', 'Selon le jeu'], ['whole', 'Rondes'], ['half', 'Blanches'], ['quarter', 'Noires'], ['eighth', 'Croches'], ['triplet', 'Triolets'], ['sixteenth', 'Doubles croches'], ['synco', 'Syncopé (3+3+2)'],
-          ['pump', 'Pompe (temps 1 et 3)'], ['antic', 'Anticipé'], ['ghost', 'Avec notes fantômes'], ['kick', 'Calé sur la grosse caisse']] }],
-      hint: { bars: 'Longueur du motif, rejoué sur les accords suivants', color: 'Des notes sûres aux approches chromatiques', vari: 'Notes redoublées ou écourtées, reprises renouvelées' },
+      name: t('part.bass.name'), regen: t('part.bass.regen'),
+      plays: ['style', 'root', 'fifth', 'octave', 'arp', 'walk', 'pedal', 'riff', 'line', 'random'].map(k => [k, t('part.bass.play.' + k)]),
+      bars: BARS_MOTIF(),
+      extra: [{ k: 'rhythm', label: t('part.bass.rhythm'), hint: t('part.bass.rhythm.hint'), show: P => P.play !== 'style',
+        options: ['auto', 'whole', 'half', 'quarter', 'eighth', 'triplet', 'sixteenth', 'synco', 'pump', 'antic', 'ghost', 'kick'].map(k => [k, t('part.bass.rhythm.' + k)]) }],
+      hint: { bars: t('part.bass.hint.bars'), color: t('part.bass.hint.color'), vari: t('part.bass.hint.vari') },
     },
     mel: {
-      name: 'Mélodie', regen: 'Nouvelle mélodie (N)',
-      plays: [['slow', 'Notes longues'], ['mid', 'Durées mêlées'], ['fast', 'Notes vives']],
-      bars: BARS_MOTIF,
+      name: t('part.mel.name'), regen: t('part.mel.regen'),
+      plays: ['slow', 'mid', 'fast'].map(k => [k, t('part.mel.play.' + k)]),
+      bars: BARS_MOTIF(),
       extra: [
-        { k: 'octave', label: 'Octave', hint: 'Registre de la mélodie', options: [[-2, 'Très grave (−2)'], [-1, 'Grave (−1)'], [0, 'Médium'], [1, 'Aigu (+1)'], [2, 'Très aigu (+2)']] },
-        { k: 'contour', label: 'Contour', hint: 'Pente générale des phrases', options: [['free', 'Libre'], ['up', 'Montant'], ['down', 'Descendant']] },
-        { k: 'air', label: 'Respiration', hint: 'De la phrase continue à la mélodie très aérée', range: true },
+        { k: 'octave', label: t('part.mel.octave'), hint: t('part.mel.octave.hint'),
+          options: [-2, -1, 0, 1, 2].map(n => [n, t('part.mel.octave.' + n)]) },
+        { k: 'contour', label: t('part.mel.contour'), hint: t('part.mel.contour.hint'),
+          options: ['free', 'up', 'down'].map(k => [k, t('part.mel.contour.' + k)]) },
+        { k: 'air', label: t('part.mel.air'), hint: t('part.mel.air.hint'), range: true },
       ],
-      hint: { bars: 'Longueur de la phrase, rejouée sur les accords suivants', color: 'Des notes de l’accord aux notes du mode, intervalles plus larges', vari: 'Rythmes et reprises renouvelés' },
+      hint: { bars: t('part.mel.hint.bars'), color: t('part.mel.hint.color'), vari: t('part.mel.hint.vari') },
     },
     drums: {
-      name: 'Batterie', regen: 'Nouvelles variations',
-      plays: [['soft', 'Feutrée'], ['mid', 'Posée'], ['high', 'Énergique']],
-      barsLabel: 'Fills',
-      bars: [[1, 'Sans fill'], [2, 'Toutes les 2 mesures'], [4, 'Toutes les 4 mesures'], [8, 'Toutes les 8 mesures'], [16, 'Toutes les 16 mesures']],
-      hint: { bars: 'Un fill en fin de cycle ; les variations se répètent aussi sur ce cycle', color: 'Du kit dépouillé aux notes fantômes et charleys ouverts', vari: 'Coups ajoutés ou retirés d’une mesure à l’autre', dyn: 'Contraste des accents ; tout en haut, frappe appuyée et charley ouvert' },
+      name: t('part.drums.name'), regen: t('part.drums.regen'),
+      plays: ['soft', 'mid', 'high'].map(k => [k, t('part.drums.play.' + k)]),
+      barsLabel: t('part.drums.fills'),
+      bars: [1, 2, 4, 8, 16].map(n => [n, t('part.drums.fills.' + n)]),
+      hint: { bars: t('part.drums.hint.bars'), color: t('part.drums.hint.color'), vari: t('part.drums.hint.vari'), dyn: t('part.drums.hint.dyn') },
     },
-  };
-  const SLIDERS = [['color', 'Couleur'], ['vari', 'Variation'], ['vol', 'Volume'], ['dyn', 'Dynamique']];
-  const RATES = [[2, 'Croches'], [3, 'Triolets'], [4, 'Doubles croches']];
+  });
+  const SLIDERS = () => ['color', 'vari', 'vol', 'dyn'].map(k => [k, t('slider.' + k)]);
+  const RATES = () => [2, 3, 4].map(n => [n, t('rate.' + n)]);
   const options = (list, cur) => list.map(([v, l]) => `<option value="${v}" ${String(v) === String(cur) ? 'selected' : ''}>${l}</option>`).join('');
 
   function renderParts() {
+    const UI = PART_UI(), SL = SLIDERS(), RT = RATES();
     $('#parts').innerHTML = PART_IDS.map(id => {
-      const P = S.parts[id], U = PART_UI[id];
+      const P = S.parts[id], U = UI[id];
       const slider = (k, l, hint) => `<label title="${hint}">${l}</label>
         <div class="row"><input type="range" min="0" max="100" value="${Math.round(P[k] * 100)}" data-k="${k}" aria-label="${l} — ${U.name}" title="${hint}"><output>${Math.round(P[k] * 100)}</output></div>`;
-      const rate = id === 'chords' && isArp() ? `<label>Débit</label><select data-k="rate">${options(RATES, P.rate)}</select>` : '';
+      const rate = id === 'chords' && isArp() ? `<label>${t('part.rate')}</label><select data-k="rate">${options(RT, P.rate)}</select>` : '';
       return `<section class="part${P.on ? '' : ' off'}" data-part="${id}">
         <header>
           <button class="switch" role="switch" aria-checked="${P.on}" aria-label="${U.name}" data-k="on"><i></i></button>
           <h3>${U.name}</h3>
-          <button class="regen" data-k="regen" title="${U.regen}">↻ Régénérer</button>
+          <button class="regen" data-k="regen" title="${U.regen}">${t('part.regen')}</button>
         </header>
         <div class="rows">
-          <label>Jeu</label><select data-k="play">${options(U.plays, P.play)}</select>${rate}
-          <label title="${U.hint.bars}">${U.barsLabel || 'Mesures'}</label><select data-k="bars" title="${U.hint.bars}">${options(U.bars, P.bars)}</select>
+          <label>${t('part.play')}</label><select data-k="play">${options(U.plays, P.play)}</select>${rate}
+          <label title="${U.hint.bars}">${U.barsLabel || t('part.bars')}</label><select data-k="bars" title="${U.hint.bars}">${options(U.bars, P.bars)}</select>
           ${(U.extra || []).map(x => (x.range ? slider(x.k, x.label, x.hint) : `<label title="${x.hint}">${x.label}</label><select data-k="${x.k}" title="${x.hint}" ${x.show && !x.show(P) ? 'disabled' : ''}>${options(x.options, P[x.k])}</select>`)).join('')}
-          ${SLIDERS.map(([k, l]) => slider(k, l, U.hint[k] || '')).join('')}
+          ${SL.map(([k, l]) => slider(k, l, U.hint[k] || '')).join('')}
         </div>
       </section>`;
     }).join('');
@@ -226,27 +231,28 @@
 
   function renderControls() {
     const fam = H.STYLES[S.style].family;
-    $('#family').innerHTML = H.FAMILIES.map(([k, l]) => `<button data-v="${k}" class="${k === fam ? 'on' : ''}">${l}</button>`).join('');
+    // Les étiquettes de familles passent par t() ; les noms de styles restent dans la langue d'origine du moteur (noms propres / anglicismes universels).
+    $('#family').innerHTML = H.FAMILIES.map(([k]) => `<button data-v="${k}" class="${k === fam ? 'on' : ''}">${t('family.' + k)}</button>`).join('');
     $('#style').innerHTML = Object.keys(H.STYLES).filter(k => H.STYLES[k].family === fam).map(k =>
       `<button data-v="${k}" class="${k === S.style ? 'on' : ''}">${H.STYLES[k].label}</button>`).join('');
-    $('#tonic').innerHTML = H.TONICS[S.minor ? 'minor' : 'major'].map(t =>
-      `<option value="${t}" ${t === S.tonic ? 'selected' : ''}>${pretty(t)}</option>`).join('');
+    $('#tonic').innerHTML = H.TONICS[S.minor ? 'minor' : 'major'].map(tn =>
+      `<option value="${tn}" ${tn === S.tonic ? 'selected' : ''}>${pretty(tn)}</option>`).join('');
     for (const b of $('#mode').children) b.classList.toggle('on', (b.dataset.v === '1') === S.minor);
     $('#tempo').value = S.tempo;
-    if (!$('#meter').options.length) $('#meter').innerHTML = Object.keys(H.METERS).map(k => `<option value="${k}">${k}</option>`).join('');
+    // Les étiquettes de mesure (2/4, 3/4…) sont de pure notation musicale, elles ne sont pas traduites.
+    $('#meter').innerHTML = Object.keys(H.METERS).map(k => `<option value="${k}">${k}</option>`).join('');
     $('#meter').value = S.meter;
     $('#meterOwn').checked = S.meterOwn;
     $('#meterOwn').disabled = !METER_KITS[S.meter];
-    $('#meterOwnLbl').title = METER_COMPS[S.meter] ? `Motifs écrits pour la mesure : ${METER_COMPS[S.meter].label}` : 'Pas de motif propre à cette mesure : les motifs du style sont adaptés';
-    if (!$('#mood').options.length) {
-      $('#mood').innerHTML = '<option value="neutre">Neutre</option>' + H.MOOD_GROUPS.map(([g, l]) => `<optgroup label="${l}">${
-        Object.keys(H.MOODS).filter(k => H.MOODS[k].group === g).map(k => `<option value="${k}">${H.MOODS[k].label}</option>`).join('')}</optgroup>`).join('');
-    }
+    $('#meterOwnLbl').title = METER_COMPS[S.meter] ? t('ctl.ownPatterns.has', METER_COMPS[S.meter].label) : t('ctl.ownPatterns.none');
+    // Le menu Ambiance est reconstruit à chaque appel pour suivre la langue.
+    $('#mood').innerHTML = `<option value="neutre">${t('mood.neutre')}</option>` + H.MOOD_GROUPS.map(([g]) => `<optgroup label="${t('moodGroup.' + g)}">${
+      Object.keys(H.MOODS).filter(k => H.MOODS[k].group === g).map(k => `<option value="${k}">${t('mood.' + k)}</option>`).join('')}</optgroup>`).join('');
     $('#mood').value = S.mood;
     $('#bright').value = Math.round(S.bright * 100);
-    const other = S.minor ? 'majeur' : 'mineur';
-    $('#bridgeType').innerHTML = options([['none', 'Aucun']].concat(Object.keys(H.BRIDGES).map(k =>
-      [k, k === 'rel' ? 'Relatif ' + other : k === 'par' ? 'Homonyme ' + other : H.BRIDGES[k].label])), S.bridge.type);
+    const other = S.minor ? t('key.major') : t('key.minor');
+    const bridgeLabel = k => k === 'rel' ? t('bridge.relative', other) : k === 'par' ? t('bridge.parallel', other) : t('bridge.types.' + k);
+    $('#bridgeType').innerHTML = options([['none', t('bridge.none')]].concat(Object.keys(H.BRIDGES).map(k => [k, bridgeLabel(k)])), S.bridge.type);
     $('#bridgeBars').value = S.bridge.bars;
     $('#bridgeForm').value = S.bridge.form;
     $('#bridgeBars').disabled = $('#bridgeForm').disabled = $('#bridgeNew').disabled = S.bridge.type === 'none';
@@ -254,8 +260,13 @@
     renderParts();
   }
 
+  // keyName : « C majeur » / « A minor » / « ля минор »…
+  const keyName = k => `${pretty(k.tonic)} ${k.minor ? t('key.minor') : t('key.major')}`;
+  // scaleName utilise la clé i18n (modeKey) renvoyée par chordInfo pour obtenir le nom traduit du mode.
+  const scaleName = c => c.modeKey ? t('scale.' + c.modeKey) : c.mode;
+
   function renderGrid() {
-    const hasBridge = S.chords.some(c => c.sec === 'B'), keyName = k => `${pretty(k.tonic)} ${k.minor ? 'mineur' : 'majeur'}`;
+    const hasBridge = S.chords.some(c => c.sec === 'B');
     let inBridge = false;
     const L = meter().L;
     $('#grid').style.setProperty('--cols', 4 * L);
@@ -263,15 +274,15 @@
     $('#grid').innerHTML = S.chords.map((ch, i) => {
       const c = info(ch);
       let head = '';
-      if (hasBridge && i === 0) head = `<div class="sect">A · ${keyName(key())}</div>`;
+      if (hasBridge && i === 0) head = `<div class="sect">${t('grid.sectionA', keyName(key()))}</div>`;
       if (ch.sec === 'B' && !inBridge) {
         inBridge = true;
-        head = `<div class="sect">Pont (B) · ${keyName(keyFor(ch))} · forme ${S.bridge.form === 'AABA' ? 'A A B A' : 'A B'}</div>`;
+        head = `<div class="sect">${t('grid.bridge', keyName(keyFor(ch)), t('bridge.form.' + (S.bridge.form === 'AABA' ? 'aaba' : 'ab') + '.short'))}</div>`;
       }
       return `${head}<button class="card fn-${ch.func}${ch.beats * 2 < L ? ' narrow' : ''}${i === sel ? ' sel' : ''}${i === playingIdx ? ' playing' : ''}"
         style="grid-column: span ${Math.min(2 * L, Math.round(ch.beats * 2))}" data-i="${i}" title="${ch.why}">
         <span class="roman">${ch.roman}</span><span class="name">${pretty(c.name)}</span>
-        <span class="mode">${pretty(c.root)} ${c.mode}</span></button>`;
+        <span class="mode">${pretty(c.root)} ${scaleName(c)}</span></button>`;
     }).join('');
   }
 
@@ -389,7 +400,7 @@
     minor: { T: [['i', 'bIII'], []], SD: [['iiø', 'iv', 'bVI'], ['IV', 'bII']], D: [['V', 'v', 'bVII'], ['bV']] },
   };
   const MAP_X = { T: 175, SD: 495, D: 815 }, MAP_ROW = 104, MAP_TOP = 92;
-  const FN_HINT = { T: 'repos', SD: 'départ', D: 'tension' };
+  const FN_HINT = new Proxy({}, { get: (_, k) => t('fnHint.' + k) });
 
   function mapLayout() {
     const cur = S.chords[sel], section = secOf(cur);
@@ -474,7 +485,7 @@
     let html = '';
     const colBg = ['T', 'SD', 'D'].map(fn => `<g class="fn-${fn}"><rect class="col" x="${MAP_X[fn] - 150}" y="18" width="300" height="${L.height - 30}" rx="16"/>
       <text class="colh" x="${MAP_X[fn]}" y="44">${FN[fn]}</text><text class="colsub" x="${MAP_X[fn]}" y="64">${FN_HINT[fn]}</text></g>`).join('');
-    html += colBg + `<line class="sep" x1="30" x2="950" y1="${L.borTop}" y2="${L.borTop}"/><text class="seph" x="36" y="${L.borTop + 16}">Emprunts</text>`;
+    html += colBg + `<line class="sep" x1="30" x2="950" y1="${L.borTop}" y2="${L.borTop}"/><text class="seph" x="36" y="${L.borTop + 16}">${t('map.borrowed')}</text>`;
 
     if (mapAll) for (const e of L.M.edges) {
       if (e.from === e.to) continue;
@@ -517,14 +528,14 @@
     const arrow = (id, cls) => `<marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse"><path class="${cls}" d="M0 0L10 5L0 10z"/></marker>`;
     el.innerHTML = `
       <div class="map-bar">
-        ${hasB ? `<div class="seg" id="mapSec"><button data-v="A" class="${L.section === 'A' ? 'on' : ''}">Grille A</button><button data-v="B" class="${L.section === 'B' ? 'on' : ''}">Pont B</button></div>` : ''}
-        <span class="hint">${pretty(k.tonic)} ${k.minor ? 'mineur' : 'majeur'} · ${H.STYLES[S.style].label}</span>
+        ${hasB ? `<div class="seg" id="mapSec"><button data-v="A" class="${L.section === 'A' ? 'on' : ''}">${t('map.gridA')}</button><button data-v="B" class="${L.section === 'B' ? 'on' : ''}">${t('map.bridgeB')}</button></div>` : ''}
+        <span class="hint">${keyName(k)} · ${H.STYLES[S.style].label}</span>
         <span class="spacer"></span>
-        <div class="seg" id="mapClick" title="Que fait un clic sur un accord de la carte">${[['listen', 'Écouter'], ['insert', 'Insérer après'], ['replace', 'Remplacer']].map(([v, l]) => `<button data-v="${v}" class="${mapClick === v ? 'on' : ''}">${l}</button>`).join('')}</div>
-        <button id="mapAll" class="toggle${mapAll ? ' on' : ''}" title="Afficher toutes les transitions possibles dans ce style">Toutes les transitions</button>
+        <div class="seg" id="mapClick" title="${t('map.click.title')}">${['listen', 'insert', 'replace'].map(v => `<button data-v="${v}" class="${mapClick === v ? 'on' : ''}">${t('map.click.' + v)}</button>`).join('')}</div>
+        <button id="mapAll" class="toggle${mapAll ? ' on' : ''}" title="${t('map.allTransitions.title')}">${t('map.allTransitions')}</button>
       </div>
       <div class="map-wrap">
-        <div class="map-scroll"><svg viewBox="0 0 980 ${L.height}" role="img" aria-label="Carte harmonique de la tonalité">
+        <div class="map-scroll"><svg viewBox="0 0 980 ${L.height}" role="img" aria-label="${t('map.aria')}">
           <defs>${arrow('mArrowSong', 'a-song')}${arrow('mArrowRes', 'a-res')}${['T', 'SD', 'D'].map(fn => arrow('mArrow-' + fn, 'a-' + fn)).join('')}</defs>
           ${html}${nodesHtml}${labels}
         </svg></div>
@@ -533,7 +544,7 @@
       </div>
       <div class="map-foot">
         <div class="map-cap" id="mapCap">${mapCaption(F, L)}</div>
-        <div class="legend"><span class="l-song">chemin du morceau (numéros = ordre)</span><span class="l-bor">emprunt</span><span class="l-sat">dominante secondaire → sa cible</span></div>
+        <div class="legend"><span class="l-song">${t('map.legend.song')}</span><span class="l-bor">${t('map.legend.borrowed')}</span><span class="l-sat">${t('map.legend.sat')}</span></div>
       </div>`;
     markMap(playingIdx);
   }
@@ -543,9 +554,10 @@
     const c = H.chordInfo(F.ch, keyFor(L.section === 'B' ? L.ref : {}));
     const outs = F.sat ? [] : L.M.edges.filter(e => e.from === F.id && e.to !== F.id).sort((a, b) => b.p - a.p).slice(0, 4);
     const sug = outs.map(e => `${L.nodes.get(e.to).ch.roman} ${Math.round(e.p * 100)} %`).join(' · ');
+    const plural = F.pos.length > 1 ? 's' : '';
     return `<b>${pretty(c.name)}</b> <span class="fn-${F.fn} rt">${F.ch.roman} · ${FN[F.fn]}</span> — ${F.ch.why}
-      ${F.beats ? `<br><span class="hint">Dans le morceau : position${F.pos.length > 1 ? 's' : ''} ${F.pos.join(', ')} · ${F.beats} temps</span>` : ''}
-      ${sug ? `<br><span class="hint">Suites les plus naturelles : ${sug}</span>` : ''}`;
+      ${F.beats ? `<br><span class="hint">${t('map.caption.inSong', plural, F.pos.join(', '), F.beats)}</span>` : ''}
+      ${sug ? `<br><span class="hint">${t('map.caption.sequels', sug)}</span>` : ''}`;
   }
 
   // Pendant la lecture : l'accord joué s'allume, le dernier enchaînement s'anime.
@@ -587,7 +599,7 @@
     const black = [[1, 1], [3, 2], [6, 4], [8, 5], [10, 6]].map(([pc, k]) =>
       `<i class="b ${cls(pc)}" style="left:calc(${(k * 100 / 7).toFixed(3)}% - 4.5%)"></i>`).join('');
     return `<div class="kb">${white}${black}</div>
-      <div class="legend"><span class="l-root">fondamentale</span><span class="l-ct">notes de l'accord</span><span class="l-st">notes du mode</span></div>`;
+      <div class="legend"><span class="l-root">${t('kb.root')}</span><span class="l-ct">${t('kb.chord')}</span><span class="l-st">${t('kb.mode')}</span></div>`;
   }
 
   // ---------- Vues instrument : guitare et basse avec doigtés ----------
@@ -687,16 +699,16 @@
     sh.frets.forEach((f, s) => {
       const pc = (GUITAR[s] + Math.max(0, f)) % 12, deg = DEGREE[(pc - c.rootPc + 12) % 12];
       if (f < 0) g += `<text class="mark" x="${NUT - 18}" y="${Y(s)}">×</text>`;
-      else if (f === 0) g += `<circle class="open${pc === c.rootPc ? ' root' : ''}" cx="${NUT - 18}" cy="${Y(s)}" r="5"><title>${noteName(c, pc)} (${deg}) à vide</title></circle>`;
+      else if (f === 0) g += `<circle class="open${pc === c.rootPc ? ' root' : ''}" cx="${NUT - 18}" cy="${Y(s)}" r="5"><title>${noteName(c, pc)} (${deg}) ${t('fretboard.open')}</title></circle>`;
       else if (!(sh.barre && f === sh.barre.fret && sh.fingers[s] === 1 && s !== sh.barre.to)) {
-        g += `<g class="dot${pc === c.rootPc ? ' root' : ''}"><title>${noteName(c, pc)} (${deg}) — doigt ${sh.fingers[s]}</title><circle cx="${cx(f)}" cy="${Y(s)}" r="9"/><text x="${cx(f)}" y="${Y(s)}">${sh.fingers[s]}</text></g>`;
+        g += `<g class="dot${pc === c.rootPc ? ' root' : ''}"><title>${noteName(c, pc)} (${deg}) — ${t('fretboard.finger', sh.fingers[s])}</title><circle cx="${cx(f)}" cy="${Y(s)}" r="9"/><text x="${cx(f)}" y="${Y(s)}">${sh.fingers[s]}</text></g>`;
       }
       if (f >= 0) g += `<text class="nn" x="${NUT + 5 * W + 16}" y="${Y(s)}">${noteName(c, pc)}</text><text class="dg" x="${NUT + 5 * W + 40}" y="${Y(s)}">${deg}</text>`;
     });
     for (let s = 0; s < 6; s++) g += `<text class="sn" x="10" y="${Y(s)}">${['E', 'A', 'D', 'G', 'B', 'e'][s]}</text>`;
     const tab = sh.frets.map(f => (f < 0 ? 'x' : f)).join(' ');
-    return `<div class="fretboard"><svg viewBox="0 0 320 146" class="gtr" role="img" aria-label="Diagramme guitare">${g}</svg>
-      <div class="fb-info"><div class="tab">${tab}</div><p class="hint">Mi aigu en haut, mi grave en bas ; cases numérotées sous le manche.${base > 1 ? ` Position en ${base}<sup>e</sup> case.` : ''}${sh.barre ? ' Barré de l\'index.' : ''}</p></div></div>`;
+    return `<div class="fretboard"><svg viewBox="0 0 320 146" class="gtr" role="img" aria-label="${t('fretboard.aria.guitar')}">${g}</svg>
+      <div class="fb-info"><div class="tab">${tab}</div></div></div>`;
   }
 
   // Basse : une case par doigt autour de la fondamentale (sur la corde de mi, ou de la si elle tombe trop haut).
@@ -718,25 +730,26 @@
       if (!tones.has(pc)) return;
       const finger = f === 0 ? 0 : f - base + 1, deg = DEGREE[(pc - c.rootPc + 12) % 12], isRoot = pc === c.rootPc;
       if (s >= s0) order.push({ s, f, deg, isRoot });
-      g += `<g class="dot${isRoot ? ' root' : ''}${f === 0 ? ' open' : ''}"><title>${noteName(c, pc)} (${deg}) — ${f === 0 ? 'corde à vide' : 'doigt ' + finger}</title>
+      g += `<g class="dot${isRoot ? ' root' : ''}${f === 0 ? ' open' : ''}"><title>${noteName(c, pc)} (${deg}) — ${f === 0 ? t('fretboard.open') : t('fretboard.finger', finger)}</title>
         <circle cx="${X(k)}" cy="${Y(s)}" r="9"/><text x="${X(k)}" y="${Y(s)}">${finger}</text></g>`;
     });
     // arpège conseillé : depuis la fondamentale, en montant
     const path = order.filter(o => o.s > s0 || (o.s === s0 && o.f >= rf)).sort((a, b) => a.s - b.s || a.f - b.f).slice(0, 5).map(o => o.deg).join(' – ');
-    return `<div class="fretboard"><svg viewBox="0 0 270 118" class="bass" role="img" aria-label="Manche de basse">${g}</svg>
-      <div class="fb-info"><p class="hint">Une case par doigt à partir de la ${base}<sup>${base === 1 ? 're' : 'e'}</sup> case, fondamentale sur la corde de ${s0 ? 'la' : 'mi'}.</p>
-      <p class="hint">Arpège : ${path}</p></div></div>`;
+    const strName = s0 ? t('fretboard.string.A') : t('fretboard.string.lowE');
+    return `<div class="fretboard"><svg viewBox="0 0 270 118" class="bass" role="img" aria-label="${t('fretboard.aria.bass')}">${g}</svg>
+      <div class="fb-info"><p class="hint">${t('fretboard.oneFinger', base, strName)}</p>
+      <p class="hint">${t('fretboard.arp', path)}</p></div></div>`;
   }
 
   // Sélecteur Piano/Basse/Guitare, renvoyé séparément pour pouvoir l'ancrer à côté du nom de l'accord sur mobile.
   function instrumentSelector() {
-    return `<div class="seg" id="instrView">${[['piano', 'Piano'], ['bass', 'Basse'], ['guitar', 'Guitare']].map(([v, l]) =>
-      `<button data-v="${v}" class="${v === S.instrView ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+    return `<div class="seg" id="instrView">${['piano', 'bass', 'guitar'].map(v =>
+      `<button data-v="${v}" class="${v === S.instrView ? 'on' : ''}">${t('instr.' + v)}</button>`).join('')}</div>`;
   }
   function instrumentDiagram(c, ch) {
     const iv = H.Q[ch.q].iv;
     const view = S.instrView === 'guitar' ? guitarView(c, iv) : S.instrView === 'bass' ? bassView(c, iv) : keyboard(c);
-    const legend = S.instrView === 'piano' ? '' : '<div class="legend"><span class="l-root">fondamentale</span><span class="l-ct">notes de l\'accord</span><span class="l-fg">chiffres : doigts (1 index … 4 auriculaire), 0 ou o : à vide, × : étouffée</span></div>';
+    const legend = S.instrView === 'piano' ? '' : `<div class="legend"><span class="l-root">${t('kb.root')}</span><span class="l-ct">${t('kb.chord')}</span><span class="l-fg">${t('fretboard.legend')}</span></div>`;
     return view + legend;
   }
 
@@ -745,16 +758,16 @@
     return `<button class="chip fn-${s.ch.func}" data-${kind}="${i}" title="${s.ch.why}"><b>${pretty(c.name)}</b><small>${s.ch.roman}</small></button>`;
   }
 
-  function groups(list, field, order, kind) {
+  function groups(list, field, order, kind, labels) {
     return order.filter(g => list.some(s => s[field] === g)).map(g =>
-      `<div class="group"><div class="gl">${g}</div><div class="chips">${
+      `<div class="group"><div class="gl">${labels ? (labels[g] || g) : g}</div><div class="chips">${
         list.map((s, i) => (s[field] === g ? chip(s, i, kind) : '')).join('')}</div></div>`).join('');
   }
 
   // Durées proposées pour un accord, en noires : demi-mesure (coupée sur un temps), une mesure, deux mesures.
   function durations() {
     const m = meter();
-    return [[m.split / 2, m.split * 2 === m.L ? 'Demi-mesure' : 'Début de mesure'], [m.L / 2, '1 mesure'], [m.L, '2 mesures']];
+    return [[m.split / 2, m.split * 2 === m.L ? t('detail.halfBar') : t('detail.beatStart')], [m.L / 2, t('detail.1bar')], [m.L, t('detail.2bar')]];
   }
 
   function renderDetail() {
@@ -763,6 +776,12 @@
     const c = info(ch);
     repl = H.suggestReplace(hstate(), sel);
     next = H.suggestNext(hstate(), sel);
+    // Les groupes d'alternatives sont indexés par leur libellé français (clé envoyée par le moteur).
+    // On passe une fonction de traduction au rendu pour que l'intitulé affiché suive la langue courante.
+    const replOrder = ['Autre couleur', 'Même fonction', 'Vers l’accord suivant'];
+    const replLabel = { 'Autre couleur': t('replGroup.otherColor'), 'Même fonction': t('replGroup.sameFn'), 'Vers l’accord suivant': t('replGroup.toNext') };
+    const nextOrder = ['attendu', 'coloré', 'surprenant'];
+    const nextLabel = { attendu: t('nextTier.expected'), 'coloré': t('nextTier.colorful'), surprenant: t('nextTier.surprising') };
     $('#detail').innerHTML = `
       <div class="d-top">
         <div>
@@ -773,24 +792,24 @@
           </div>
           <p class="why">${ch.why}</p>
           <div class="row" style="flex-wrap:wrap">
-            <span class="hint">Durée</span>
+            <span class="hint">${t('detail.duration')}</span>
             <div class="seg" id="beats">${durations().map(([b, l]) => `<button data-v="${b}" class="${b === ch.beats ? 'on' : ''}">${l}</button>`).join('')}</div>
-            <button id="listen">Écouter</button>
-            <button id="del" ${ch.sec !== 'B' && gridChords().length < 2 ? 'disabled' : ''}>Supprimer</button>
+            <button id="listen">${t('detail.listen')}</button>
+            <button id="del" ${ch.sec !== 'B' && gridChords().length < 2 ? 'disabled' : ''}>${t('detail.delete')}</button>
           </div>
         </div>
         <div>
-          <h4>Notes de l'accord</h4>
+          <h4>${t('detail.notes')}</h4>
           <div class="notes">${c.notes.map(pretty).join('  ')}</div>
           ${instrumentDiagram(c, ch)}
-          <h4>Mode conseillé</h4>
-          <div class="modeline">${pretty(c.root)} ${c.mode}</div>
+          <h4>${t('detail.mode')}</h4>
+          <div class="modeline">${pretty(c.root)} ${scaleName(c)}</div>
           <div class="notes">${c.scaleNotes.map(pretty).join('  ')}</div>
         </div>
       </div>
       <div class="d-sug">
-        <div><h4>Remplacer par</h4>${groups(repl, 'group', ['Autre couleur', 'Même fonction', 'Vers l’accord suivant'], 'repl') || '<p class="hint">Pas d’alternative évidente à cet endroit.</p>'}</div>
-        <div><h4>Continuer avec</h4>${groups(next, 'tier', ['attendu', 'coloré', 'surprenant'], 'next')}</div>
+        <div><h4>${t('detail.replaceBy')}</h4>${groups(repl, 'group', replOrder, 'repl', replLabel) || `<p class="hint">${t('detail.noAlternative')}</p>`}</div>
+        <div><h4>${t('detail.continueWith')}</h4>${groups(next, 'tier', nextOrder, 'next', nextLabel)}</div>
       </div>`;
   }
 
@@ -1482,13 +1501,13 @@
       nextT = ctx.currentTime + .08;
       timer = setInterval(tick, 25);
       tick();
-      $('#play').textContent = '■ Stop';
+      $('#play').textContent = t('transport.stop');
     }
     function stop() {
       clearInterval(timer);
       timer = null;
       mark(-1);
-      $('#play').textContent = '▶ Lecture';
+      $('#play').textContent = t('transport.play');
     }
 
     return { chord, volumes, toggle: () => (timer ? stop() : start()), playing: () => !!timer };
@@ -1507,9 +1526,9 @@
       });
       return out;
     };
-    const keyName = k => `${pretty(k.tonic)} ${k.minor ? 'mineur' : 'majeur'}`, B = S.chords.filter(c => c.sec === 'B');
+    const B = S.chords.filter(c => c.sec === 'B');
     let out = `${keyName(key())} — ${H.STYLES[S.style].label} — ${S.meter} — ${S.tempo} bpm\n` + line(gridChords());
-    if (B.length) out += `\nPont (${keyName(keyFor(B[0]))}), forme ${S.bridge.form === 'AABA' ? 'A A B A' : 'A B'}\n` + line(B);
+    if (B.length) out += `\n${t('grid.bridge', keyName(keyFor(B[0])), t('bridge.form.' + (S.bridge.form === 'AABA' ? 'aaba' : 'ab') + '.short'))}\n` + line(B);
     return out;
   }
 
@@ -1533,11 +1552,12 @@
   // L'export rejoue la boucle croche par croche avec stepEvents : le fichier contient exactement ce qu'on entend
   // (motif d'accompagnement, arpèges, basse, mélodie, batterie, swing), une piste par partie activée.
   const GM_PROGRAM = { keys: 4, guitar: 27, pad: 89, dist: 29, synth: 81, strings: 48, pluck: 24, organ: 21 }; // piano électrique, guitare claire, pad, guitare saturée, lead, cordes, guitare nylon, accordéon
-  const MIDI_PARTS = [
-    { track: 'chords', name: 'Accords', chan: 0 },
-    { track: 'bass', name: 'Basse', chan: 1, program: 33 },
-    { track: 'mel', name: 'Melodie', chan: 2, program: 80 },
-    { track: 'drums', name: 'Batterie', chan: 9 },
+  // Les noms de pistes MIDI suivent la langue au moment de l'export.
+  const midiParts = () => [
+    { track: 'chords', name: t('midi.chords'), chan: 0 },
+    { track: 'bass', name: t('midi.bass'), chan: 1, program: 33 },
+    { track: 'mel', name: t('midi.mel'), chan: 2, program: 80 },
+    { track: 'drums', name: t('midi.drums'), chan: 9 },
   ];
 
   function buildMidi() {
@@ -1554,7 +1574,7 @@
     }
 
     const tracks = [cond], summary = [];
-    for (const part of MIDI_PARTS) {
+    for (const part of midiParts()) {
       const list = notes[part.track].sort((a, b) => a.on - b.on);
       if (!list.length) continue;
       // une note rejouée coupe la précédente de même hauteur ; rien ne dépasse la fin de la boucle
@@ -1583,7 +1603,7 @@
     a.download = `harmonie-${S.style}-${S.tonic.replace('#', 's')}${S.minor ? 'm' : ''}-${S.tempo}bpm.mid`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-    toast('MIDI : ' + summary.join(' · ') + ' notes');
+    toast(t('toast.midiSummary', summary.join(' · ')));
   }
 
   function toast(msg) {
@@ -1629,7 +1649,7 @@
     S.meter = e.target.value;
     S.chords = [];
     generate();
-    toast(`Mesure ${S.meter} : nouvelle grille`);
+    toast(t('toast.meterNew', S.meter));
   });
   $('#tempo').addEventListener('change', e => { S.tempo = Math.max(50, Math.min(220, +e.target.value || 120)); changed(true); });
   $('#mood').addEventListener('change', e => {
@@ -1638,7 +1658,7 @@
     Player.volumes();
     S.chords = [];
     generate();
-    toast(`Ambiance « ${H.MOODS[S.mood].label} » : réglages posés, modifiables`);
+    toast(t('toast.moodApplied', t('mood.' + S.mood)));
   });
   $('#bright').addEventListener('input', e => { S.bright = e.target.value / 100; save(); });
   $('#bridgeType').addEventListener('change', e => { S.bridge.type = e.target.value; regenBridge(); });
@@ -1652,8 +1672,8 @@
   $('#copy').addEventListener('click', () => {
     const text = gridText();
     (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(
-      () => toast('Grille copiée'),
-      () => window.prompt('Copier la grille :', text));
+      () => toast(t('toast.gridCopied')),
+      () => window.prompt(t('prompt.copyGrid'), text));
   });
 
   // Panneaux d'instruments : un seul jeu d'écouteurs, l'instrument et le réglage sont lus sur l'élément.
@@ -1759,6 +1779,13 @@
   });
 
   window.harmonieMidi = () => buildMidi(); // pour vérifier l'export sans télécharger
+
+  // Changement de langue : relire tout le DOM dynamique pour que les libellés suivent la langue courante.
+  // Le libellé du bouton Lecture est aussi mis à jour selon l'état lecture / arrêt.
+  window.addEventListener('langchange', () => {
+    $('#play').textContent = Player.playing() ? t('transport.stop') : t('transport.play');
+    changed(true);
+  });
 
   // ---------- Démarrage ----------
 

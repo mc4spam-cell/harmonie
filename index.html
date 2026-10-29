@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Harmonie — suites d'accords</title>
+<title>Harmonie</title>
 <style>
   :root {
     --bg: #14161a; --panel: #1c1f25; --panel2: #242830; --line: #313640;
@@ -519,6 +519,42 @@
   #look { margin-left: auto; }
   #look button { font-size: 11px; padding: 3px 10px; }
   html[data-look="studio"] #look button { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; padding: 2px 0; }
+
+  /* sélecteur de langue : bouton rond affichant le drapeau courant, à droite du bouton d'aide.
+     Un clic ouvre un popover en dialogue natif avec les 10 drapeaux. */
+  #lang {
+    align-self: center; flex: none; width: 30px; height: 30px; padding: 0;
+    border-radius: 50%; font-size: 16px; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--panel2); border: 1px solid var(--line); cursor: pointer;
+  }
+  #lang:hover { border-color: var(--muted); }
+  html[data-look="studio"] #lang { border: 1px solid var(--line); background: transparent; }
+  html[data-look="studio"] #lang:hover { border-color: var(--muted); }
+  dialog#langSheet { padding: 0; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; width: min(300px, calc(100vw - 32px)); }
+  dialog#langSheet::backdrop { background: rgba(0, 0, 0, .5); }
+  #langSheet .lang-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 14px; }
+  #langSheet button {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 6px; font-size: 11px; color: var(--muted);
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
+  }
+  #langSheet button .flag { font-size: 22px; line-height: 1; }
+  #langSheet button:hover { border-color: var(--muted); color: var(--text); }
+  #langSheet button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  html[data-look="studio"] #langSheet button { background: transparent; }
+  html[data-look="studio"] #langSheet button.on { background: var(--accent); }
+
+  /* adaptations RTL : en-tête et miniplay se retournent, le sélecteur garde sa position relative */
+  html[dir="rtl"] #look { margin-left: 0; margin-right: auto; }
+  html[dir="rtl"] .d-head #instrView { margin-left: 0; margin-right: auto; }
+
+  @media (max-width: 760px) {
+    #lang { width: 26px; height: 26px; font-size: 13px; }
+    #langSheet .lang-grid { grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 10px; }
+    #langSheet button { padding: 8px 4px; font-size: 10px; }
+    #langSheet button .flag { font-size: 18px; }
+  }
 </style>
 <script>
   // Habillage choisi (Studio par défaut), appliqué avant l'affichage pour éviter un clignotement.
@@ -528,107 +564,108 @@
 <body>
 <main>
   <header>
-    <h1>Harmonie</h1>
-    <p>Générateur de suites d'accords et de modes</p>
-    <div class="seg" id="look" aria-label="Habillage"><button data-v="classic">Classique</button><button data-v="studio">Studio</button></div>
-    <button id="help" aria-label="Raccourcis clavier" title="Raccourcis clavier" aria-haspopup="dialog" aria-expanded="false">i</button>
+    <h1 data-i18n="app.title">Harmonie</h1>
+    <p data-i18n="app.subtitle">Chord progression and mode generator</p>
+    <div class="seg" id="look" data-i18n-attr="aria-label:skin.aria"><button data-v="classic" data-i18n="skin.classic">Classic</button><button data-v="studio" data-i18n="skin.studio">Studio</button></div>
+    <button id="help" data-i18n-attr="aria-label:help.aria,title:help.aria" aria-haspopup="dialog" aria-expanded="false">i</button>
+    <button id="lang" data-i18n-attr="aria-label:lang.aria,title:lang.aria" aria-haspopup="dialog" aria-expanded="false">🇬🇧</button>
   </header>
 
-  <nav id="tabs" class="tabs" role="tablist" aria-label="Sections">
-    <button data-v="general"     role="tab">Général</button>
-    <button data-v="instruments" role="tab">Instruments</button>
-    <button data-v="grid"        role="tab">Grille</button>
-    <button data-v="map"         role="tab">Carte</button>
-    <button data-v="disc"        role="tab">Disque</button>
+  <nav id="tabs" class="tabs" role="tablist" data-i18n-attr="aria-label:tabs.aria">
+    <button data-v="general"     role="tab" data-i18n="tab.general">General</button>
+    <button data-v="instruments" role="tab" data-i18n="tab.instruments">Instruments</button>
+    <button data-v="grid"        role="tab" data-i18n="tab.grid">Grid</button>
+    <button data-v="map"         role="tab" data-i18n="tab.map">Map</button>
+    <button data-v="disc"        role="tab" data-i18n="tab.disc">Disc</button>
   </nav>
 
   <section class="zone" aria-labelledby="zGeneral">
-    <h2 id="zGeneral">Général</h2>
+    <h2 id="zGeneral" data-i18n="zone.general">General</h2>
     <div class="controls">
-      <div class="field wide"><label>Famille</label>
+      <div class="field wide"><label data-i18n="ctl.family">Family</label>
         <div class="hscroll">
           <div class="seg" id="family"></div>
           <span class="hs-arrow hs-left" aria-hidden="true">‹</span>
           <span class="hs-arrow hs-right" aria-hidden="true">›</span>
         </div>
       </div>
-      <div class="field wide"><label>Style</label>
+      <div class="field wide"><label data-i18n="ctl.style">Style</label>
         <div class="hscroll">
           <div class="seg" id="style"></div>
           <span class="hs-arrow hs-left" aria-hidden="true">‹</span>
           <span class="hs-arrow hs-right" aria-hidden="true">›</span>
         </div>
       </div>
-      <div class="field"><label for="tonic">Tonalité</label>
+      <div class="field"><label for="tonic" data-i18n="ctl.tonic">Key</label>
         <div class="row"><select id="tonic"></select>
-          <div class="seg" id="mode"><button data-v="0">Majeur</button><button data-v="1">Mineur</button></div></div>
+          <div class="seg" id="mode"><button data-v="0" data-i18n="ctl.major">Major</button><button data-v="1" data-i18n="ctl.minor">Minor</button></div></div>
       </div>
-      <div class="field"><label for="meter">Mesure</label>
-        <div class="row"><select id="meter" title="Signature rythmique (en génère une nouvelle grille)"></select>
-          <label class="check" id="meterOwnLbl"><input type="checkbox" id="meterOwn"> motifs propres</label></div></div>
-      <div class="field"><label for="tempo">Tempo</label><input type="number" id="tempo" min="50" max="220"></div>
-      <div class="field"><label for="mood">Ambiance</label><select id="mood"></select></div>
-      <div class="field"><label for="bright">Brillance</label><input type="range" id="bright" min="0" max="100" title="Du son voilé au son brillant"></div>
-      <div class="field"><label for="bridgeType">Pont</label>
+      <div class="field"><label for="meter" data-i18n="ctl.meter">Meter</label>
+        <div class="row"><select id="meter" data-i18n-attr="title:ctl.meter.title"></select>
+          <label class="check" id="meterOwnLbl"><input type="checkbox" id="meterOwn"> <span data-i18n="ctl.ownPatterns">own patterns</span></label></div></div>
+      <div class="field"><label for="tempo" data-i18n="ctl.tempo">Tempo</label><input type="number" id="tempo" min="50" max="220"></div>
+      <div class="field"><label for="mood" data-i18n="ctl.mood">Mood</label><select id="mood"></select></div>
+      <div class="field"><label for="bright" data-i18n="ctl.brightness">Brightness</label><input type="range" id="bright" min="0" max="100" data-i18n-attr="title:ctl.brightness.title"></div>
+      <div class="field"><label for="bridgeType" data-i18n="ctl.bridge">Bridge</label>
         <div class="row" style="flex-wrap:wrap">
           <select id="bridgeType"></select>
-          <select id="bridgeBars" aria-label="Longueur du pont"><option value="4">4 mesures</option><option value="8">8 mesures</option></select>
-          <select id="bridgeForm" aria-label="Forme"><option value="AB">Forme A B</option><option value="AABA">Forme A A B A</option></select>
-          <button id="bridgeNew" title="Tirer un autre pont, sans toucher à la grille">↻</button>
+          <select id="bridgeBars" data-i18n-attr="aria-label:bridge.aria.length"><option value="4" data-i18n="bridge.bars.4">4 bars</option><option value="8" data-i18n="bridge.bars.8">8 bars</option></select>
+          <select id="bridgeForm" data-i18n-attr="aria-label:bridge.aria.form"><option value="AB" data-i18n="bridge.form.ab">A B form</option><option value="AABA" data-i18n="bridge.form.aaba">A A B A form</option></select>
+          <button id="bridgeNew" data-i18n-attr="title:bridge.regen.title">↻</button>
         </div>
       </div>
     </div>
     <div class="transport">
-      <button id="play" class="primary">▶ Lecture</button>
-      <button id="regenAll" title="Nouvelle grille et nouvelles versions de tous les instruments">↻ Tout régénérer</button>
-      <button id="undo">Annuler</button>
+      <button id="play" class="primary" data-i18n="transport.play">▶ Play</button>
+      <button id="regenAll" data-i18n="transport.regenAll" data-i18n-attr="title:transport.regenAll.title">↻ Regenerate all</button>
+      <button id="undo" data-i18n="transport.undo">Undo</button>
       <span class="spacer"></span>
-      <button id="copy">Copier la grille</button>
-      <button id="midi">Exporter MIDI</button>
+      <button id="copy" data-i18n="transport.copy">Copy grid</button>
+      <button id="midi" data-i18n="transport.midi">Export MIDI</button>
     </div>
   </section>
 
   <section class="zone" aria-labelledby="zParts">
-    <h2 id="zParts">Instruments</h2>
+    <h2 id="zParts" data-i18n="zone.instruments">Instruments</h2>
     <div id="parts" class="parts"></div>
   </section>
 
   <section class="zone" aria-labelledby="zGrid">
-    <div class="zhead"><h2 id="zGrid">Morceau</h2>
-      <div class="seg" id="view"><button data-v="grid">Grille</button><button data-v="disc">Disque</button><button data-v="map">Carte</button></div></div>
+    <div class="zhead"><h2 id="zGrid" data-i18n="zone.song">Song</h2>
+      <div class="seg" id="view"><button data-v="grid" data-i18n="view.grid">Grid</button><button data-v="disc" data-i18n="view.disc">Disc</button><button data-v="map" data-i18n="view.map">Map</button></div></div>
     <div id="grid" class="grid"></div>
     <div id="disc" class="disc" hidden></div>
     <div id="map" class="map" hidden></div>
     <div id="detail"></div>
   </section>
 
-  <footer>
-    Changer la tonalité transpose la grille ; changer de style ou de mode en génère une nouvelle.
-    Le pont se termine sur la dominante du ton principal pour revenir à la grille.
-    Choisir une ambiance pose un ensemble de réglages (mode, tempo, brillance, instruments) et génère une nouvelle grille ; tout reste modifiable ensuite.
-    Survole un réglage d'instrument pour voir ce qu'il fait.
+  <footer data-i18n="footer.text">
+    Changing the key transposes the grid; changing style or mode generates a new one. The bridge ends on the dominant of the main key to return to the grid. Choosing a mood sets parameters (mode, tempo, brightness, instruments) and generates a new grid; everything stays editable. Hover an instrument setting to see what it does.
   </footer>
 </main>
-<div id="miniplay" class="miniplay" aria-label="Actions rapides">
-  <button id="miniPlayBtn" class="primary" aria-label="Lecture / Pause" title="Lecture / Pause">▶ Lecture</button>
-  <button id="miniRegenBtn" aria-label="Tout régénérer" title="Tout régénérer">↻ Tout régénérer</button>
+<div id="miniplay" class="miniplay" data-i18n-attr="aria-label:mini.aria">
+  <button id="miniPlayBtn" class="primary" data-i18n-attr="aria-label:mini.aria.play,title:mini.aria.play">▶ Play</button>
+  <button id="miniRegenBtn" data-i18n-attr="aria-label:mini.aria.regen,title:mini.aria.regen">↻ Regenerate all</button>
 </div>
 <div id="toast"></div>
 <dialog id="shortcuts" class="sheet" aria-labelledby="scTitle">
   <form method="dialog" class="sheet-head">
-    <h2 id="scTitle">Raccourcis clavier</h2>
-    <button class="x" value="close" aria-label="Fermer">✕</button>
+    <h2 id="scTitle" data-i18n="sc.title">Keyboard shortcuts</h2>
+    <button class="x" value="close" data-i18n-attr="aria-label:sc.close">✕</button>
   </form>
   <dl class="sc">
-    <dt><kbd>Espace</kbd></dt><dd>Lecture / pause</dd>
-    <dt><kbd>G</kbd></dt><dd>Nouvelle grille</dd>
-    <dt><kbd>N</kbd></dt><dd>Nouvelle mélodie</dd>
-    <dt><kbd>M</kbd></dt><dd>Activer / couper la mélodie</dd>
-    <dt><kbd>B</kbd></dt><dd>Activer / couper la batterie</dd>
-    <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Naviguer entre les accords</dd>
-    <dt><kbd>Suppr</kbd> <kbd>⌫</kbd></dt><dd>Retirer l'accord sélectionné</dd>
-    <dt><kbd>⌘Z</kbd> <kbd>Ctrl+Z</kbd></dt><dd>Annuler</dd>
+    <dt><kbd>Space</kbd></dt><dd data-i18n="sc.space">Play / pause</dd>
+    <dt><kbd>G</kbd></dt><dd data-i18n="sc.g">New grid</dd>
+    <dt><kbd>N</kbd></dt><dd data-i18n="sc.n">New melody</dd>
+    <dt><kbd>M</kbd></dt><dd data-i18n="sc.m">Toggle melody</dd>
+    <dt><kbd>B</kbd></dt><dd data-i18n="sc.b">Toggle drums</dd>
+    <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd data-i18n="sc.arrows">Navigate chords</dd>
+    <dt><kbd>Del</kbd> <kbd>⌫</kbd></dt><dd data-i18n="sc.del">Remove selected chord</dd>
+    <dt><kbd>⌘Z</kbd> <kbd>Ctrl+Z</kbd></dt><dd data-i18n="sc.undo">Undo</dd>
   </dl>
+</dialog>
+<dialog id="langSheet" aria-labelledby="langTitle">
+  <div class="lang-grid" id="langGrid"></div>
 </dialog>
 <script>
   // Bascule d'habillage : indépendante de l'application, mémorisée dans ce navigateur.
@@ -678,12 +715,13 @@
   })();
 </script>
 <script>
-  // Barre d'actions mobile : les deux boutons renvoient simplement vers leurs homologues du transport, et le libellé Lecture suit l'état de #play.
+  // Barre d'actions mobile : les deux boutons renvoient simplement vers leurs homologues du transport.
+  // Le mini bouton Lecture recopie le texte exact de #play pour que l'étiquette suive à la fois l'état (Lecture/Stop) et la langue.
   (function () {
     const play = document.getElementById('play'), regen = document.getElementById('regenAll');
     const bPlay = document.getElementById('miniPlayBtn'), bRegen = document.getElementById('miniRegenBtn');
     if (bPlay && play) {
-      const sync = () => { bPlay.textContent = play.textContent.startsWith('■') ? '■ Stop' : '▶ Lecture'; };
+      const sync = () => { bPlay.textContent = play.textContent; };
       bPlay.addEventListener('click', () => play.click());
       new MutationObserver(sync).observe(play, { childList: true, characterData: true, subtree: true });
       sync();
@@ -734,7 +772,36 @@
 </script>
 <script>
   // Outil local servi sans en-têtes de cache : on force le rechargement des scripts pour ne jamais mélanger deux versions.
-  for (const f of ['engine.js', 'app.js']) document.write('<script src="' + f + '?t=' + Date.now() + '"><\/script>');
+  // i18n.js et ses dictionnaires sont chargés d'abord, pour que les scripts inline qui suivent trouvent window.i18n.
+  const __files = ['i18n.js', 'i18n-en.js', 'i18n-fr.js', 'i18n-es.js', 'i18n-pt.js', 'i18n-ru.js', 'i18n-zh.js', 'i18n-hi.js', 'i18n-ar.js', 'i18n-bn.js', 'i18n-ur.js', 'i18n-extra.js', 'engine.js', 'app.js'];
+  for (const f of __files) document.write('<script src="' + f + '?t=' + Date.now() + '"><\/script>');
+</script>
+<script>
+  // Sélecteur de langue : bouton affichant le drapeau courant, popover avec les 10 drapeaux. Appuie sur i18n.setLang.
+  (function () {
+    const btn = document.getElementById('lang'), dlg = document.getElementById('langSheet'), grid = document.getElementById('langGrid');
+    if (!btn || !dlg || !grid || !window.i18n) return;
+    const render = () => {
+      const cur = window.i18n.lang;
+      grid.innerHTML = window.i18n.LANGS.map(l =>
+        `<button data-code="${l.code}" class="${l.code === cur ? 'on' : ''}" aria-label="${l.name}" title="${l.name}">
+          <span class="flag">${l.flag}</span><span>${l.name}</span>
+        </button>`).join('');
+      const now = window.i18n.LANGS.find(l => l.code === cur);
+      if (now) btn.textContent = now.flag;
+    };
+    btn.addEventListener('click', () => { render(); btn.setAttribute('aria-expanded', 'true'); dlg.showModal(); });
+    dlg.addEventListener('close', () => btn.setAttribute('aria-expanded', 'false'));
+    dlg.addEventListener('click', e => {
+      if (e.target === dlg) return dlg.close();
+      const b = e.target.closest('button[data-code]');
+      if (!b) return;
+      window.i18n.setLang(b.dataset.code);
+      dlg.close();
+    });
+    window.addEventListener('langchange', render);
+    render();
+  })();
 </script>
 </body>
 </html>
