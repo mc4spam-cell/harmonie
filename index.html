@@ -531,15 +531,19 @@
   #lang:hover { border-color: var(--muted); }
   html[data-look="studio"] #lang { border: 1px solid var(--line); background: transparent; }
   html[data-look="studio"] #lang:hover { border-color: var(--muted); }
-  dialog#langSheet { padding: 0; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; width: min(300px, calc(100vw - 32px)); }
+  /* La boîte s'adapte au nombre de tuiles : largeur max calée sur 5 colonnes de 86 px, elle rétrécit sur
+     écran étroit. La grille utilise auto-fit, donc ajouter une tuile crée une colonne de plus (jusqu'à 5)
+     ou retombe sur la ligne suivante. Toutes les tuiles ont des dimensions fixes identiques. */
+  dialog#langSheet { padding: 0; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; width: min(518px, calc(100vw - 32px)); }
   dialog#langSheet::backdrop { background: rgba(0, 0, 0, .5); }
-  #langSheet .lang-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 14px; }
+  #langSheet .lang-grid { display: grid; grid-template-columns: repeat(auto-fit, 86px); gap: 8px; padding: 14px; justify-content: center; }
   #langSheet button {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    padding: 10px 6px; font-size: 11px; color: var(--muted);
-    background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    width: 86px; height: 76px; padding: 10px 4px; font-size: 11px; line-height: 1.2;
+    color: var(--muted); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
+    text-align: center;
   }
-  #langSheet button .flag { font-size: 22px; line-height: 1; }
+  #langSheet button .flag { font-size: 24px; line-height: 1; }
   #langSheet button:hover { border-color: var(--muted); color: var(--text); }
   #langSheet button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
   html[data-look="studio"] #langSheet button { background: transparent; }
@@ -551,9 +555,10 @@
 
   @media (max-width: 760px) {
     #lang { width: 26px; height: 26px; font-size: 13px; }
-    #langSheet .lang-grid { grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 10px; }
-    #langSheet button { padding: 8px 4px; font-size: 10px; }
-    #langSheet button .flag { font-size: 18px; }
+    /* Sur mobile les tuiles sont un peu plus petites et uniformes ; auto-fit choisit le nombre de colonnes qui tiennent. */
+    #langSheet .lang-grid { grid-template-columns: repeat(auto-fit, 72px); gap: 6px; padding: 10px; }
+    #langSheet button { width: 72px; height: 66px; padding: 8px 4px; font-size: 10px; }
+    #langSheet button .flag { font-size: 20px; }
   }
 </style>
 <script>
