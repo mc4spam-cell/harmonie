@@ -520,8 +520,7 @@
         ${hasB ? `<div class="seg" id="mapSec"><button data-v="A" class="${L.section === 'A' ? 'on' : ''}">Grille A</button><button data-v="B" class="${L.section === 'B' ? 'on' : ''}">Pont B</button></div>` : ''}
         <span class="hint">${pretty(k.tonic)} ${k.minor ? 'mineur' : 'majeur'} · ${H.STYLES[S.style].label}</span>
         <span class="spacer"></span>
-        <label class="hint">Clic</label>
-        <div class="seg" id="mapClick">${[['listen', 'Écouter'], ['insert', 'Insérer après'], ['replace', 'Remplacer']].map(([v, l]) => `<button data-v="${v}" class="${mapClick === v ? 'on' : ''}">${l}</button>`).join('')}</div>
+        <div class="seg" id="mapClick" title="Que fait un clic sur un accord de la carte">${[['listen', 'Écouter'], ['insert', 'Insérer après'], ['replace', 'Remplacer']].map(([v, l]) => `<button data-v="${v}" class="${mapClick === v ? 'on' : ''}">${l}</button>`).join('')}</div>
         <button id="mapAll" class="toggle${mapAll ? ' on' : ''}" title="Afficher toutes les transitions possibles dans ce style">Toutes les transitions</button>
       </div>
       <div class="map-wrap">
