@@ -24,7 +24,18 @@ Le panneau **Général** regroupe les réglages qui concernent le morceau entier
 | Tonalité | liste (12 valeurs) | Ne régénère pas : les accords sont relatifs à la tonique, la grille est transposée. |
 | Mode | « Majeur » / « Mineur » | Génère une nouvelle grille. La tonique garde sa hauteur (Do majeur devient Do mineur). |
 | Mesure | liste (8 signatures) | Génère une nouvelle grille. Voir section 8. |
-| motifs propres | case à cocher | Active par défaut. Disponible seulement pour 3/4, 6/8, 7/8 et 12/8. Voir section 8. |
+| Mesure | menu | Signatures disponibles : 3/4, 4/4, 5/8, 6/8, 7/8, 8/8, 9/12, 10/12, 11/12, 12/12. |
+| motifs propres | case à cocher | Active par défaut. Disponible seulement pour 3/4 (motifs dédiés). Les autres mesures impaires redistribuent le motif de base. Voir section 8. |
+
+### Nouveaux réglages par instrument (v2)
+
+- **Accords** : `Durée` (0 = staccato, 1 = tenu, échelle ×0,3 à ×1,7), `Aération` (enlève des notes du voicing en gardant la tête). Bouton **Arpège** : ouvre l'arpégiateur avec BPM/mesure/grille.
+- **Double** (second instrument d'accord, off par défaut) : partage toutes les options des accords 1 (`play` : style/block/up/down/updown/random, `rate`, `densité`, `registre`, `durée`, `aération`, `variation`, `dynamique`) et y ajoute un `timbre` propre (auto ou forcé, incluant `brass`) et un `fx` (saturation / trémolo / fuzz, chaîne audio câblée). La basse du motif `style` reste émise par les accords 1 (pas de double ligne de basse). Bus audio, volume et dynamique indépendants.
+- **Basse** : `Durées variables` (raccourcit certaines notes au hasard). La dynamique accrue affecte aussi l'attaque (vélocité fortement scalée).
+- **Mélodie** : `Glissando` (notes qui se chevauchent légèrement), `Où jouer` (Tous / Impairs / Pairs / Tonique). Bouton **Arpège**.
+- **Batterie** : `Style de variation` (Droit / Notes fantômes / Syncopes / Laidback / Dense) qui se combine aux fills. `Breaks` (aucun / toutes les 4, 8 ou 16 mesures) : **batterie et basse muettes sur le dernier temps** de la mesure de break (la respiration classique « band stops »), les accords continuent. Nécessite la batterie activée.
+- **Mélodie** : `Refrain` (aucun / toutes les 2, 4 ou 8 mesures) : alterne couplet (seed de la partie) et refrain (seed dédié `refrainSeed`), par blocs de N mesures. Le refrain rejoue le même motif à chaque passage.
+- **Variation à 100 %** (tous les instruments) : quand `vari ≥ 0,95`, deux mesures consécutives sont franchement différentes. Mélodie et basse : la graine du motif est remplacée à chaque mesure dès bar > 0. Batterie : la caisse claire ET le kick sont alternés sur des **temps forts** d'une mesure à l'autre (audible, pas juste des notes fantômes). Accords (comp) : deux déviations déterministes par mesure, un skip et un ajout à des positions qui tournent.
 | Tempo | nombre, 50 à 220 | Valeur hors plage ramenée à la limite ; vide ou non numérique : 120. |
 | Ambiance | liste groupée | Pose les réglages de l'ambiance (section 6) et génère une nouvelle grille. |
 | Brillance | curseur 0 à 100 (défaut 50) | Ne régénère pas. Filtre passe-bas de tous les timbres sauf la basse : fréquence de coupure = coupure du timbre × (0,5 + brillance). |

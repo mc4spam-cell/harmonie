@@ -31,11 +31,12 @@ Quand un comportement change, mettre à jour `docs/SPECIFICATIONS.md` dans le m�
 
 ## Vérifier une modification
 
-- **Moteur** : générer en masse dans Node sur tous les styles, ambiances et mesures, puis vérifier :
-  - longueurs des grilles et des ponts ;
-  - notes d'accord comprises dans le mode ;
-  - absence de chevauchement pour la basse et la mélodie ;
-  - une note de basse à chaque changement d'accord.
+- **Moteur** : `node test.js` — couvre tous les styles × mesures, vérifie :
+  - grilles non vides, accords avec `beats > 0` ;
+  - mélodie et basse dans la plage MIDI, sans chevauchement sur une même piste ;
+  - une note de basse au début de chaque changement d'accord ;
+  - voicing dans la plage MIDI, au moins une note par accord.
+  Tourner à `vari=0` et `vari=1`, sur plusieurs ambiances et toniques.
 - **Application** : servir le dossier (`python3 -m http.server`), puis contrôler dans le navigateur :
   - l'absence d'erreur dans la console ;
   - la lecture ;

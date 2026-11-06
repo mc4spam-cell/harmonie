@@ -12,13 +12,14 @@
   // Réglages généraux à plat ; un bloc par instrument dans S.parts :
   //   on, bars (mesures), color, play (façon de jouer), vari (variation), vol, dyn (dynamique), seed (changée par « Régénérer »).
 
-  const PART_IDS = ['chords', 'bass', 'mel', 'drums'];
+  const PART_IDS = ['chords', 'double', 'bass', 'mel', 'drums'];
   const newSeed = () => (Math.random() * 1e9) | 0;
   const defaultParts = () => ({
-    chords: { on: true, bars: 8, color: .5, play: 'style', rate: 2, dens: .5, reg: 0, vari: .15, vol: .8, dyn: .5, seed: newSeed() },
-    bass: { on: true, bars: 0, color: .5, play: 'style', rhythm: 'auto', vari: .15, vol: .8, dyn: .5, seed: newSeed() },
-    mel: { on: false, bars: 0, color: .5, play: 'mid', air: .25, octave: 0, contour: 'free', vari: .3, vol: .8, dyn: .5, seed: newSeed() },
-    drums: { on: true, bars: 4, color: .5, play: 'mid', vari: .15, vol: .8, dyn: .5, seed: newSeed() },
+    chords: { on: true, bars: 8, color: .5, play: 'style', rate: 2, dens: .5, reg: 0, dur: .5, air: 0, timbre: 'auto', vari: .15, vol: .8, dyn: .5, seed: newSeed() },
+    double: { on: false, bars: 0, color: .5, play: 'style', rate: 2, dens: .5, reg: 0, dur: .5, air: 0, timbre: 'guitar', fx: 'none', vari: .15, vol: .6, dyn: .5, seed: newSeed() },
+    bass: { on: true, bars: 0, color: .5, play: 'style', rhythm: 'auto', durVar: 0, vari: .15, vol: .8, dyn: .5, seed: newSeed() },
+    mel: { on: false, bars: 0, color: .5, play: 'mid', air: .25, octave: 0, contour: 'free', glide: 0, where: 'all', refrain: 0, refrainSeed: newSeed(), vari: .3, vol: .8, dyn: .5, seed: newSeed() },
+    drums: { on: true, bars: 4, breaks: 0, color: .5, play: 'mid', varStyle: 'straight', vari: .15, vol: .8, dyn: .5, seed: newSeed() },
   });
 
   // bridge : pont (type 'none' = pas de pont), sa longueur, et la forme jouée (AB ou AABA).
@@ -91,10 +92,12 @@
 
   function pushUndo() {
     undoStack.push(JSON.stringify(S));
-    if (undoStack.length > 60) undoStack.shift();
+    if (undoStack.length > 20) undoStack.shift();
   }
   function undo() {
     if (!undoStack.length) return;
+    // Purge toutes les clés top-level avant de restaurer, sinon les clés ajoutées depuis le snapshot survivraient.
+    for (const k of Object.keys(S)) delete S[k];
     Object.assign(S, JSON.parse(undoStack.pop()));
     sel = Math.min(sel, S.chords.length - 1);
     Player.volumes();
@@ -169,17 +172,39 @@
       extra: [
         { k: 'reg', label: t('part.chords.reg'), hint: t('part.chords.reg.hint'),
           options: [[-1, t('part.chords.reg.low')], [0, t('part.chords.reg.mid')], [1, t('part.chords.reg.high')]] },
+        { k: 'timbre', label: t('part.chords.timbre'), hint: t('part.chords.timbre.hint'),
+          options: ['auto', 'keys', 'guitar', 'pad', 'pluck', 'organ', 'dist', 'brass', 'synth'].map(k => [k, t('timbre.' + k)]) },
         { k: 'dens', label: t('part.chords.dens'), hint: t('part.chords.dens.hint'), range: true },
+        { k: 'dur',  label: t('part.chords.dur'), hint: t('part.chords.dur.hint'), range: true },
+        { k: 'air',  label: t('part.chords.air'), hint: t('part.chords.air.hint'), range: true },
       ],
       hint: { bars: t('part.chords.hint.bars'), color: t('part.chords.hint.color'), vari: t('part.chords.hint.vari') },
+    },
+    double: {
+      name: t('part.double.name'), regen: t('part.double.regen'),
+      plays: ['style', 'block', 'up', 'down', 'updown', 'random'].map(k => [k, t('part.chords.play.' + k)]),
+      bars: [[0, t('part.double.bars.follow')]],
+      extra: [
+        { k: 'reg', label: t('part.chords.reg'), hint: t('part.chords.reg.hint'),
+          options: [[-1, t('part.chords.reg.low')], [0, t('part.chords.reg.mid')], [1, t('part.chords.reg.high')]] },
+        { k: 'timbre', label: t('part.double.timbre'), hint: t('part.double.timbre.hint'),
+          options: ['auto', 'keys', 'guitar', 'pad', 'pluck', 'organ', 'dist', 'brass', 'synth'].map(k => [k, t('timbre.' + k)]) },
+        { k: 'fx', label: t('part.double.fx'), hint: t('part.double.fx.hint'),
+          options: ['none', 'sat', 'trem', 'fuzz'].map(k => [k, t('fx.' + k)]) },
+        { k: 'dens', label: t('part.chords.dens'), hint: t('part.chords.dens.hint'), range: true },
+        { k: 'dur',  label: t('part.chords.dur'), hint: t('part.chords.dur.hint'), range: true },
+        { k: 'air',  label: t('part.chords.air'), hint: t('part.chords.air.hint'), range: true },
+      ],
+      hint: { bars: t('part.double.hint.bars'), color: t('part.chords.hint.color'), vari: t('part.chords.hint.vari') },
     },
     bass: {
       name: t('part.bass.name'), regen: t('part.bass.regen'),
       plays: ['style', 'root', 'fifth', 'octave', 'arp', 'walk', 'pedal', 'riff', 'line', 'random'].map(k => [k, t('part.bass.play.' + k)]),
       bars: BARS_MOTIF(),
       extra: [{ k: 'rhythm', label: t('part.bass.rhythm'), hint: t('part.bass.rhythm.hint'), show: P => P.play !== 'style',
-        options: ['auto', 'whole', 'half', 'quarter', 'eighth', 'triplet', 'sixteenth', 'synco', 'pump', 'antic', 'ghost', 'kick'].map(k => [k, t('part.bass.rhythm.' + k)]) }],
-      hint: { bars: t('part.bass.hint.bars'), color: t('part.bass.hint.color'), vari: t('part.bass.hint.vari') },
+        options: ['auto', 'whole', 'half', 'quarter', 'eighth', 'triplet', 'sixteenth', 'synco', 'pump', 'antic', 'ghost', 'kick'].map(k => [k, t('part.bass.rhythm.' + k)]) },
+        { k: 'durVar', label: t('part.bass.durVar'), hint: t('part.bass.durVar.hint'), range: true }],
+      hint: { bars: t('part.bass.hint.bars'), color: t('part.bass.hint.color'), vari: t('part.bass.hint.vari'), dyn: t('part.bass.hint.dyn') },
     },
     mel: {
       name: t('part.mel.name'), regen: t('part.mel.regen'),
@@ -190,7 +215,12 @@
           options: [-2, -1, 0, 1, 2].map(n => [n, t('part.mel.octave.' + n)]) },
         { k: 'contour', label: t('part.mel.contour'), hint: t('part.mel.contour.hint'),
           options: ['free', 'up', 'down'].map(k => [k, t('part.mel.contour.' + k)]) },
+        { k: 'where', label: t('part.mel.where'), hint: t('part.mel.where.hint'),
+          options: ['all', 'odd', 'even', 'tonic'].map(k => [k, t('part.mel.where.' + k)]) },
+        { k: 'refrain', label: t('part.mel.refrain'), hint: t('part.mel.refrain.hint'),
+          options: [0, 2, 4, 8].map(n => [n, t('periodic.' + n)]) },
         { k: 'air', label: t('part.mel.air'), hint: t('part.mel.air.hint'), range: true },
+        { k: 'glide', label: t('part.mel.glide'), hint: t('part.mel.glide.hint'), range: true },
       ],
       hint: { bars: t('part.mel.hint.bars'), color: t('part.mel.hint.color'), vari: t('part.mel.hint.vari') },
     },
@@ -199,6 +229,12 @@
       plays: ['soft', 'mid', 'high'].map(k => [k, t('part.drums.play.' + k)]),
       barsLabel: t('part.drums.fills'),
       bars: [1, 2, 4, 8, 16].map(n => [n, t('part.drums.fills.' + n)]),
+      extra: [
+        { k: 'varStyle', label: t('part.drums.varStyle'), hint: t('part.drums.varStyle.hint'),
+          options: ['straight', 'ghost', 'syncop', 'laidback', 'busy'].map(k => [k, t('varStyle.' + k)]) },
+        { k: 'breaks', label: t('part.drums.breaks'), hint: t('part.drums.breaks.hint'),
+          options: [0, 4, 8, 16].map(n => [n, t('periodic.' + n)]) },
+      ],
       hint: { bars: t('part.drums.hint.bars'), color: t('part.drums.hint.color'), vari: t('part.drums.hint.vari'), dyn: t('part.drums.hint.dyn') },
     },
   });
@@ -212,7 +248,8 @@
       const P = S.parts[id], U = UI[id];
       const slider = (k, l, hint) => `<label title="${hint}">${l}</label>
         <div class="row"><input type="range" min="0" max="100" value="${Math.round(P[k] * 100)}" data-k="${k}" aria-label="${l} — ${U.name}" title="${hint}"><output>${Math.round(P[k] * 100)}</output></div>`;
-      const rate = id === 'chords' && isArp() ? `<label>${t('part.rate')}</label><select data-k="rate">${options(RT, P.rate)}</select>` : '';
+      const isArpPlay = p => p.play !== 'style' && p.play !== 'block';
+      const rate = (id === 'chords' || id === 'double') && isArpPlay(P) ? `<label>${t('part.rate')}</label><select data-k="rate">${options(RT, P.rate)}</select>` : '';
       return `<section class="part${P.on ? '' : ' off'}" data-part="${id}">
         <header>
           <button class="switch" role="switch" aria-checked="${P.on}" aria-label="${U.name}" data-k="on"><i></i></button>
@@ -223,7 +260,7 @@
           <label>${t('part.play')}</label><select data-k="play">${options(U.plays, P.play)}</select>${rate}
           <label title="${U.hint.bars}">${U.barsLabel || t('part.bars')}</label><select data-k="bars" title="${U.hint.bars}">${options(U.bars, P.bars)}</select>
           ${(U.extra || []).map(x => (x.range ? slider(x.k, x.label, x.hint) : `<label title="${x.hint}">${x.label}</label><select data-k="${x.k}" title="${x.hint}" ${x.show && !x.show(P) ? 'disabled' : ''}>${options(x.options, P[x.k])}</select>`)).join('')}
-          ${SL.map(([k, l]) => slider(k, l, U.hint[k] || '')).join('')}
+          ${SL.filter(([k]) => !(id === 'double' && k === 'color')).map(([k, l]) => slider(k, l, U.hint[k] || '')).join('')}
         </div>
       </section>`;
     }).join('');
@@ -836,12 +873,13 @@
   }
   // q : croche dans la boucle. Tous les tirages en dépendent, pour que l'export MIDI redonne ce qu'on entend.
   // Variation : certaines mesures retournent l'arpège ou le font partir d'une autre note.
-  function arpNote(v, k, q) {
-    const C = S.parts.chords, bar = Math.floor(q / meter().L);
+  function arpNote(v, k, q, part) {
+    part = part || S.parts.chords;
+    const bar = Math.floor(q / meter().L);
     let cyc = arpCycle(v);
-    if (H.rand(C.seed, bar, 31) < C.vari * .5) cyc = cyc.slice().reverse();
-    if (C.play === 'random') return cyc[Math.floor(H.rand(C.seed, q, k + 40) * cyc.length)];
-    const shift = H.rand(C.seed, bar, 33) < C.vari * .4 ? Math.floor(H.rand(C.seed, bar, 32) * cyc.length) : 0;
+    if (H.rand(part.seed, bar, 31) < part.vari * .5) cyc = cyc.slice().reverse();
+    if (part.play === 'random') return cyc[Math.floor(H.rand(part.seed, q, k + 40) * cyc.length)];
+    const shift = H.rand(part.seed, bar, 33) < part.vari * .4 ? Math.floor(H.rand(part.seed, bar, 32) * cyc.length) : 0;
     return cyc[(k + shift) % cyc.length];
   }
 
@@ -862,8 +900,20 @@
   const melCache = { key: '' }, bassCache = { key: '' };
   function melNotes() {
     const M = S.parts.mel;
-    return cached(melCache, [gridSig(), M.seed, M.play, M.bars, M.color, M.vari, M.air, M.octave, M.contour],
-      () => H.melody(pstate(), { seed: M.seed, density: M.play, bars: M.bars, color: M.color, vari: M.vari, air: M.air, octave: M.octave, contour: M.contour }));
+    return cached(melCache, [gridSig(), M.seed, M.refrainSeed, M.refrain, M.play, M.bars, M.color, M.vari, M.air, M.octave, M.contour],
+      () => {
+        const base = { density: M.play, bars: M.bars, color: M.color, vari: M.vari, air: M.air, octave: M.octave, contour: M.contour };
+        const couplet = H.melody(pstate(), Object.assign({ seed: M.seed }, base));
+        if (!M.refrain) return couplet;
+        // Deuxième mélodie avec un seed dédié, et on choisit note par note selon la mesure.
+        const refrain = H.melody(pstate(), Object.assign({ seed: M.refrainSeed || (M.seed ^ 0x9E3779B9) }, base));
+        const B16 = meter().B16;
+        const isRefrain = t => Math.floor(Math.floor(t / B16) / M.refrain) % 2 === 1;
+        const out = [];
+        for (const n of couplet) if (!isRefrain(n.t)) out.push(n);
+        for (const n of refrain) if (isRefrain(n.t)) out.push(n);
+        return out.sort((a, b) => a.t - b.t);
+      });
   }
   // 'style' : la basse vient du motif d'accompagnement ; sinon une ligne écrite par le moteur.
   const bassWritten = () => S.parts.bass.play !== 'style';
@@ -881,7 +931,8 @@
     const P = S.parts[part];
     const m = meter(), b = pos16 % m.B16; // accent selon la place dans la mesure : premier temps, autres temps, croches, doubles
     const a = (b === 0 ? .25 : m.starts16.includes(b) ? .08 : pos16 % 2 === 0 ? -.1 : -.2) + (H.rand(P.seed, pos16, 70) - .5) * .3;
-    return Math.max(.1, Math.min(1.25, (.7 + (base - .7) * P.dyn * 2) * (1 + P.dyn * a)));
+    // dyn = 0 → doux sans accent (40 %), 0,5 → naturel (80 %), 1 → fort avec accents marqués (120 %).
+    return Math.max(.08, Math.min(1.3, base * (.4 + .8 * P.dyn) * (1 + P.dyn * a * 1.3)));
   }
 
   // ---------- Audio ----------
@@ -896,6 +947,7 @@
     strings: { oscs: [['sawtooth', -.05, .35], ['sawtooth', .05, .35], ['triangle', 0, .3]], a: .08, d: .6, s: .8, r: .35, cut: 2200 },
     pluck: { oscs: [['sawtooth', 0, .4], ['triangle', 12, .2]], a: .003, d: .25, s: .15, r: .15, cut: 3000 },
     organ: { oscs: [['square', 0, .3], ['sine', 12, .3], ['triangle', 0, .3]], a: .02, d: .4, s: .8, r: .1, cut: 2600 },
+    brass: { oscs: [['sawtooth', 0, .5], ['square', 0, .25], ['triangle', 7, .15]], a: .03, d: .25, s: .75, r: .2, cut: 2000 },
     // harmoniques et attaque marquée : la basse doit rester lisible sur de petits haut-parleurs, notes répétées comprises
     bass: { oscs: [['sine', 0, 1], ['triangle', 0, .4], ['sawtooth', 0, .18], ['sine', 12, .15]], a: .004, d: .22, s: .45, r: .06, cut: 1100 },
   };
@@ -940,7 +992,12 @@
   // Le style nomme son motif d'accompagnement et son kit ; il peut remplacer le timbre du motif.
   // Timbre réellement joué par les accords : hors motif du style, un pad devient un piano électrique (plaqués, arpèges).
   // La lecture et le programme MIDI de la piste Accords s'en servent tous les deux.
-  const chordTimbre = () => { const P = pattern(); return S.parts.chords.play !== 'style' && P.timbre === 'pad' ? 'keys' : P.timbre; };
+  const chordTimbre = () => {
+    const over = S.parts.chords.timbre;
+    if (over && over !== 'auto') return over;
+    const P = pattern();
+    return S.parts.chords.play !== 'style' && P.timbre === 'pad' ? 'keys' : P.timbre;
+  };
 
   // Si l'option est active et que la mesure a ses propres motifs, ils remplacent ceux du style (le timbre reste celui du style).
   const ownMeter = () => S.meterOwn && !!METER_KITS[S.meter];
@@ -954,11 +1011,9 @@
   // ---------- Motifs propres à certaines mesures ----------
   // Accompagnement : positions en croches dans la mesure (0 .. L-1). Batterie : lignes de B16 doubles croches par mesure.
   const allEighths = (L, beat, off, len) => { const o = {}; for (let e = 0; e < L; e++) o[e] = [e % 3 ? off : beat, len]; return o; };
+  // Motifs et kits propres à certaines mesures impaires ; sinon, repli sur le motif 4/4 redistribué.
   const METER_COMPS = {
     '3/4': { swing: 0, offbeat: true, label: 'Valse', c: { 2: [.7, 1.6], 4: [.7, 1.6] }, b: { 0: ['r', .95, 1.8] } },
-    '6/8': { swing: 0, label: 'Ballade en 6/8', c: { 0: [.75, 1.8], 2: [.5, .9], 3: [.65, 1.8], 5: [.5, .9] }, b: { 0: ['r', .9, 2.8], 3: ['5', .8, 2.8] } },
-    '7/8': { swing: 0, label: '7/8 (2+2+3)', c: { 0: [.8, 1.6], 2: [.6, 1.6], 4: [.7, 2.6] }, b: { 0: ['r', .95, 1.8], 2: ['5', .8, 1.8], 4: ['r', .9, 2.8] } },
-    '12/8': { swing: 0, label: 'Blues en 12/8', c: allEighths(12, .7, .45, .9), b: { 0: ['r', .95, 2.6], 3: ['3', .8, 2.6], 6: ['5', .85, 2.6], 9: ['3', .8, 2.6] } },
   };
   const METER_KITS = {
     '3/4': { // valse : grosse caisse sur le 1, caisse claire sur le 2 et le 3
@@ -966,25 +1021,6 @@
       soft: { k: 'x...........', b: '....x...x...' },
       mid: { k: 'x...........', s: '....o...o...', h: 'x...x...x...' },
       high: { k: 'x.......x...', s: '....x...x...', h: 'x.x.x.x.x.x.', fill: { s: '....x.x.xxxx' } },
-    },
-    '6/8': { // deux temps de trois croches : grosse caisse sur le 1, caisse claire sur le 2
-      kick: [130, 45, .3],
-      soft: { k: 'x...........', h: 'o.o.o.o.o.o.' },
-      mid: { k: 'x...........', s: '......x.....', h: 'x.x.x.x.x.x.' },
-      high: { k: 'x...x.x.....', s: '......x.....', h: 'x.x.x.x.x.x.', o: '..........x.', fill: { s: '......x.x.xx' } },
-    },
-    '7/8': { // 2+2+3 : grosse caisse sur les temps 1 et 3, caisse claire sur le 2 et l'en-l'air du 3
-      kick: [140, 45, .25],
-      soft: { k: 'x.......x.....', r: '....x.........', h: 'x.x.x.x.x.x.x.' },
-      mid: { k: 'x.......x.....', s: '....x.......x.', h: 'x.x.x.x.x.x.x.' },
-      high: { k: 'x.x.....x.x...', s: '....x.......x.', h: 'x.xxx.xxx.xxx.', fill: { s: '....x...x.x.xx' } },
-    },
-    '12/8': { // blues lent : quatre temps de trois croches, shuffle sur le charley
-      kick: [130, 45, .3],
-      soft: { k: 'x...........x...........', r: '......x...........x.....', h: 'o.o.o.o.o.o.o.o.o.o.o.o.' },
-      mid: { k: 'x...........x.........x.', s: '......x...........x.....', h: 'x.x.x.x.x.x.x.x.x.x.x.x.' },
-      high: { k: 'x.....x.....x.....x...x.', s: '......x...........x.x.x.', h: 'x...x.x...x.x...x.x...x.', o: '....................x...',
-        fill: { s: '......x...........xxx.xx' } },
     },
   };
 
@@ -1229,7 +1265,18 @@
     },
   };
 
+  // Memo 1 slot : stepEvents appelle drumBar deux fois par croche. Comme le motif ne change pas dans la mesure,
+  // on garde la dernière réponse. Invalidation implicite au moindre changement de seed/réglage via la clé.
+  let _drumBarLast = { key: '', pat: null };
   function drumBar(bar) {
+    const D = S.parts.drums;
+    const sigKey = bar + '|' + D.seed + '|' + D.play + '|' + D.bars + '|' + D.breaks + '|' + D.color + '|' + D.vari + '|' + D.dyn + '|' + D.varStyle + '|' + S.style + '|' + S.meter + '|' + (S.meterOwn ? 1 : 0);
+    if (_drumBarLast.key === sigKey) return _drumBarLast.pat;
+    const pat2 = _drumBarCompute(bar);
+    _drumBarLast = { key: sigKey, pat: pat2 };
+    return pat2;
+  }
+  function _drumBarCompute(bar) {
     const D = S.parts.drums, level = D.play, M = kit()[level], pat = {}, N = D.bars, jazz = pattern().swing >= .3; // jazz : kits en swing ternaire
     // own : motif écrit pour la mesure (W doubles croches) ; sinon motif 4/4 (16), redistribué ensuite par toMeter
     const m = meter(), own = ownMeter(), W = own ? m.B16 : 16, beatAt = new Set(own ? m.starts16 : [0, 4, 8, 12]);
@@ -1270,6 +1317,43 @@
       if (keeper) pat[keeper] = ml(pat[keeper], (c, i) => (c !== '.' && !beatAt.has(i) && r(i, 51) < D.vari * .2 ? '.' : c));
       if (pat.k) pat.k = ml(pat.k, (c, i) => (c === '.' && i && i % 2 === 0 && r(i, 52) < D.vari * .1 ? 'o' : c));
       if (pat.s) pat.s = ml(pat.s, (c, i) => (c === '.' && (jazz ? i % 4 === 2 : !beatAt.has(i)) && r(i, 53) < D.vari * .08 ? 'o' : c));
+    }
+    // À vari = 1, perturbations franches sur des TEMPS FORTS : chaque mesure gagne/perd un coup audible.
+    // Alterne un coup de caisse claire d'un temps fort à l'autre, et bouge un kick par mesure.
+    if (D.vari >= .95) {
+      const flip = (line, pos, on, off) => {
+        if (pos >= line.length) return line;
+        const cur = line[pos];
+        const n = cur === '.' ? on : off;
+        return line.substring(0, pos) + n + line.substring(pos + 1);
+      };
+      if (pat.s && beatAt.size > 1) {
+        // Un des temps forts (hors temps 1) est forcé/enlevé, en alternant par mesure.
+        const beats = [...beatAt].filter(b => b !== 0);
+        const target = beats[bar % beats.length];
+        pat.s = flip(pat.s, target, 'x', '.');
+      }
+      if (pat.k && beatAt.size > 1) {
+        const beats = [...beatAt].filter(b => b !== 0);
+        const target = beats[(bar + 1) % beats.length];
+        pat.k = flip(pat.k, target, 'x', '.');
+      }
+    }
+    // Style de variation — se combine avec vari ci-dessus et avec le fill (choisi par D.bars).
+    if (D.varStyle && D.varStyle !== 'straight') {
+      const r = (i, salt) => H.rand(D.seed, (bar % N) * W + i, salt);
+      if (D.varStyle === 'ghost') {
+        if (pat.s) pat.s = ml(pat.s, (c, i) => (c === '.' && !beatAt.has(i) && r(i, 71) < .3 ? 'o' : c));
+        if (pat.k) pat.k = ml(pat.k, (c, i) => (c === '.' && (i % 2) && r(i, 72) < .15 ? 'o' : c));
+      } else if (D.varStyle === 'syncop') {
+        if (pat.k) pat.k = ml(pat.k, (c, i) => (c === '.' && (i % 4 === 3) && r(i, 73) < .4 ? 'x' : c));
+        if (pat.s) pat.s = ml(pat.s, (c, i) => (c === 'x' && (i === 0) && r(i, 74) < .35 ? '.' : c));
+      } else if (D.varStyle === 'laidback') {
+        if (pat.s) pat.s = ml(pat.s, (c, i) => (c === '.' && beatAt.has(i - 1) && r(i, 75) < .35 ? 'o' : c));
+      } else if (D.varStyle === 'busy') {
+        const keeper2 = pat.h ? 'h' : pat.d ? 'd' : pat.a ? 'a' : null;
+        if (keeper2) pat[keeper2] = ml(pat[keeper2], (c, i) => (c === '.' && r(i, 76) < .4 ? 'x' : c));
+      }
     }
     return own ? pat : toMeter(pat);
   }
@@ -1316,60 +1400,104 @@
   // track est l'identifiant de l'instrument (chords, bass, mel, drums).
   function stepEvents(q, tl) {
     const e = tl[q], ch = S.chords[e.i], P = pattern(), ev = [];
-    const C = S.parts.chords, B = S.parts.bass, D = S.parts.drums;
+    const C = S.parts.chords, D2 = S.parts.double, B = S.parts.bass, D = S.parts.drums, M = S.parts.mel;
     const m = meter(), sw = q % 2 && !m.compound ? P.swing : 0, pos = q % m.L, cp = ownMeter() ? pos : compPos(pos), v = H.voicing(ch, keyFor(ch), 59 + 7 * S.parts.chords.reg);
+    // Break : à la dernière mesure de chaque cycle, on « saute un temps » sur batterie et basse (dernier temps muet).
+    // Les accords continuent, pour que la musique garde son harmonie et que le silence des percussions soit entendu comme une respiration.
+    const breakBar = D.on && D.breaks > 0 && Math.floor(q / m.L) % D.breaks === D.breaks - 1;
+    // Dernier temps = dernier groupe de la mesure, en 8ths.
+    const lastBeatStart = m.L - m.groups[m.groups.length - 1];
+    const inBreakBeat = breakBar && pos >= lastBeatStart;
     const add = (track, m, off, dur, vel, timbre, strum) =>
       ev.push({ track, m, off, dur, vel: dynVel(track, vel, Math.round((q + off - sw) * 2)), timbre, strum });
+    // Durée / aération par partie.
+    const voicingForAir = (arr, air) => (air > 0 ? arr.slice(0, Math.max(1, Math.round(arr.length * (1 - air)))) : arr);
+    const durMul = p => .3 + (p.dur ?? .5) * 1.4;
+    // Filtre « où joue la mélodie » : sur quels accords on l'entend.
+    const melPlays = !M.where || M.where === 'all' ? true
+      : M.where === 'odd'   ? (e.i % 2 === 1)
+      : M.where === 'even'  ? (e.i % 2 === 0)
+      : M.where === 'tonic' ? (ch.func === 'T')
+      : true;
+    // Variations bass : raccourcit certaines notes au hasard.
+    const bassDurScale = (dAtt) => 1 - (B.durVar || 0) * H.rand(B.seed, q, 44) * .5;
     const written = (track, lookup, timbre) => {
       // le swing ne déplace que les notes posées sur la grille des doubles croches
-      for (const nt of lookup.byStep.get(q) || []) add(track, nt.m, (Number.isInteger(nt.t) ? sw : 0) + (nt.t - q * 2) / 2, nt.d / 2 * (nt.g ? .45 : track === 'bass' ? (nt.d <= 2 ? .7 : .85) : .95), nt.g ? .3 : .9, timbre); // basse détachée, pour entendre chaque note ; notes fantômes brèves et faibles
+      for (const nt of lookup.byStep.get(q) || []) {
+        let base = nt.d / 2 * (nt.g ? .45 : track === 'bass' ? (nt.d <= 2 ? .7 : .85) : .95);
+        if (track === 'mel') base *= 1 + (M.glide || 0) * .5; // glissando : notes qui chevauchent légèrement.
+        if (track === 'bass') base *= bassDurScale();
+        add(track, nt.m, (Number.isInteger(nt.t) ? sw : 0) + (nt.t - q * 2) / 2, base, nt.g ? .3 : .9, timbre);
+      }
     };
-
     if (D.on) {
       const pat = drumBar(Math.floor(q / m.L));
       for (let sub = 0; sub < 2; sub++) for (const inst in pat) {
         const base = DRUM_VEL[pat[inst][pos * 2 + sub]];
         if (!base) continue;
-        const vel = (.7 + (base - .7) * D.dyn * 2) * (1 + D.dyn * (H.rand(D.seed, q * 2 + sub, inst.charCodeAt(0)) - .5) * .25);
-        ev.push({ track: 'drums', inst, off: sw + sub / 2, vel: Math.max(.12, Math.min(1.2, vel)) });
+        // Même courbe que dynVel : 40 % à dyn=0, 80 % à 0,5, 120 % à 1, plus un micro-jitter accru avec dyn.
+        const vel = base * (.4 + .8 * D.dyn) * (1 + D.dyn * (H.rand(D.seed, q * 2 + sub, inst.charCodeAt(0)) - .5) * .35);
+        ev.push({ track: 'drums', inst, off: sw + sub / 2, vel: Math.max(.08, Math.min(1.3, vel)) });
       }
     }
     if (B.on && bassWritten()) written('bass', bassNotes(), 'bass');
-    if (S.parts.mel.on) written('mel', melNotes(), 'lead');
+    if (S.parts.mel.on && melPlays) written('mel', melNotes(), 'lead');
 
-    if (C.play !== 'style') {
-      const timbre = chordTimbre();
-      if (e.start) {
-        if (B.on && !bassWritten()) add('bass', v.bass, 0, Math.min(ch.beats, 4) * 2 * .95, .9, 'bass');
-        if (C.on && C.play === 'block') v.notes.forEach((m, k) => add('chords', m, 0, ch.beats * 2 * .95, .7, timbre, k * .008));
+    // Émission d'accords commune à « chords » (1) et « double » (2). Les deux partagent toutes les options
+    // (play, rate, dens, reg, dur, air, vari) ; la basse du motif `style` reste attachée aux accords 1 pour
+    // éviter une double ligne de basse.
+    function emitChordPart(part, track, timbre) {
+      if (!part.on) return;
+      const voi = H.voicing(ch, keyFor(ch), 59 + 7 * (part.reg || 0));
+      const notes = voicingForAir(voi.notes, part.air || 0);
+      const dm = durMul(part);
+      if (part.play !== 'style') {
+        if (part.play === 'block' && e.start) {
+          notes.forEach((mm, k) => add(track, mm, 0, ch.beats * 2 * .95 * dm, .7, timbre, k * .008));
+        } else if (part.play !== 'block') {
+          const r = part.rate || 2, len8 = Math.round(ch.beats * 2), alone = r === 3 && e.k + 1 >= len8;
+          const per = r === 3 ? (e.k % 2 ? 0 : alone ? 1 : 3) : r / 2, gap = alone ? 1 : 2 / r;
+          for (let j = 0; j < per; j++) {
+            const off = (r === 2 ? sw : 0) + j * gap, room = len8 - e.k - off;
+            add(track, arpNote(voi, e.k * r / 2 + j, q, part), off, Math.min(gap * 1.7 * dm, room * .97), .7, timbre);
+          }
+        }
+        return;
       }
-      if (C.on && C.play !== 'block') {
-        // rate = notes par temps ; les triolets se placent sur les temps (croches paires de l'accord). Une croche restée seule
-        // en fin d'accord (mesures à nombre impair de croches) reçoit une seule note. Chaque note s'arrête avant l'accord suivant.
-        const r = C.rate, len8 = Math.round(ch.beats * 2), alone = r === 3 && e.k + 1 >= len8;
-        const per = r === 3 ? (e.k % 2 ? 0 : alone ? 1 : 3) : r / 2, gap = alone ? 1 : 2 / r;
-        for (let j = 0; j < per; j++) {
-          const off = (r === 2 ? sw : 0) + j * gap, room = len8 - e.k - off; // place restante avant l'accord suivant, swing compris
-          add('chords', arpNote(v, e.k * r / 2 + j, q), off, Math.min(gap * 1.7, room * .97), .7, timbre);
+      // Mode style (comp) : lit le motif P.c, applique densité et variation propres à la partie.
+      let c2 = P.c[cp] || (e.start && !P.offbeat ? [.7, 1.5] : null);
+      if (part.dens < .33) {
+        c2 = P.offbeat ? c2 : e.start || pos === 0 ? [.7, Math.min(ch.beats * 2 - e.k, m.L - pos) * .95] : null;
+      } else {
+        if (part.dens > .66 && !c2) c2 = [.4, .8];
+        const r2 = H.rand(part.seed, q, 61);
+        if (c2 && !e.start && r2 < part.vari * .3) c2 = null;
+        else if (!c2 && r2 < part.vari * .25) c2 = [.45, .8];
+        if (part.vari >= .95) {
+          const barL = Math.floor(q / m.L), posL = q % m.L;
+          // Deux positions déterministes par mesure : un skip et un ajout, dépendants de `bar` pour changer à chaque mesure.
+          if (!e.start && posL === ((barL * 3 + 1) % m.L)) c2 = null;
+          if (!e.start && posL === ((barL * 5 + 3) % m.L)) c2 = [.6, .7];
         }
       }
-      return ev;
+      if (c2) notes.forEach((mm, k) => add(track, mm, sw, c2[1] * dm, c2[0], timbre, k * .006));
     }
 
-    let c = P.c[cp] || (e.start && !P.offbeat ? [.7, 1.5] : null), b = e.start ? ['r', .95, (P.b[cp] || [0, 0, 1.5])[2]] : P.b[cp];
-    if (C.dens < .33) { // densité basse : un accord tenu par mesure ou par changement, basse sur les temps forts
-      c = P.offbeat ? c : e.start || pos === 0 ? [.7, Math.min(ch.beats * 2 - e.k, m.L - pos) * .95] : null;
-      if (!e.start && pos !== m.split) b = null;
-    } else {
-      if (C.dens > .66 && !c) c = [.4, .8]; // densité haute : toutes les croches
-      // variation : un coup du motif saute, ou un coup léger s'ajoute
-      const r = H.rand(C.seed, q, 61);
-      if (c && !e.start && r < C.vari * .3) c = null;
-      else if (!c && r < C.vari * .25) c = [.45, .8];
+    emitChordPart(C, 'chords', chordTimbre());
+    emitChordPart(D2, 'double', D2.timbre && D2.timbre !== 'auto' ? D2.timbre : chordTimbre());
+
+    // Basse du motif `style` : uniquement rattachée aux accords 1 (une seule ligne de basse).
+    if (C.play === 'style') {
+      let b = e.start ? ['r', .95, (P.b[cp] || [0, 0, 1.5])[2]] : P.b[cp];
+      if (C.dens < .33 && !e.start && pos !== m.split) b = null;
+      if (b && B.on && !bassWritten()) {
+        const d = b[2] * bassDurScale();
+        add('bass', v.bass + (b[0] === '5' ? v.fifth : b[0] === '3' ? v.third : b[0] === '8' ? 12 : 0), sw, d, b[1], 'bass');
+      }
+    } else if (e.start && B.on && !bassWritten()) {
+      add('bass', v.bass, 0, Math.min(ch.beats, 4) * 2 * .95, .9, 'bass');
     }
-    if (c && C.on) v.notes.forEach((m, k) => add('chords', m, sw, c[1], c[0], P.timbre, k * .006));
-    if (b && B.on && !bassWritten()) add('bass', v.bass + (b[0] === '5' ? v.fifth : b[0] === '3' ? v.third : b[0] === '8' ? 12 : 0), sw, b[2], b[1], 'bass');
-    return ev;
+    return inBreakBeat ? ev.filter(x => x.track !== 'drums' && x.track !== 'bass') : ev;
   }
 
   const Player = (() => {
@@ -1384,7 +1512,12 @@
         out.gain.value = .75;
         out.connect(comp);
         comp.connect(ctx.destination);
-        for (const id of PART_IDS) { bus[id] = ctx.createGain(); bus[id].connect(out); }
+        for (const id of PART_IDS) {
+          bus[id] = ctx.createGain();
+          bus[id].connect(out);
+        }
+        // Chaîne fx du « double » : waveshaper (sat/fuzz) + tremolo LFO. Rebranchée quand D2.fx change.
+        buildDoubleFx();
         volumes();
         noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
         const d = noiseBuf.getChannelData(0);
@@ -1393,11 +1526,56 @@
       if (ctx.state === 'suspended') ctx.resume();
     }
 
+    // Courbes de distorsion pour le WaveShaperNode.
+    function satCurve(k) {
+      const n = 512, c = new Float32Array(n);
+      for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; c[i] = Math.tanh(k * x); }
+      return c;
+    }
+    function fuzzCurve(k) {
+      const n = 512, c = new Float32Array(n);
+      for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; c[i] = Math.sign(x) * (1 - Math.exp(-k * Math.abs(x))); }
+      return c;
+    }
+
+    let doubleFx = null;
+    function buildDoubleFx() {
+      if (!ctx) return;
+      // Détache l'ancienne chaîne et relie la nouvelle entre bus.double et `out`.
+      try { bus.double.disconnect(); } catch (_) {}
+      if (doubleFx) { try { doubleFx.lfo && doubleFx.lfo.stop(); } catch (_) {} }
+      const fx = (S.parts.double && S.parts.double.fx) || 'none';
+      if (fx === 'none') { bus.double.connect(out); doubleFx = null; return; }
+      const nodes = { input: bus.double };
+      if (fx === 'sat' || fx === 'fuzz') {
+        const ws = ctx.createWaveShaper();
+        ws.curve = fx === 'fuzz' ? fuzzCurve(8) : satCurve(5);
+        ws.oversample = '4x';
+        const g = ctx.createGain(); g.gain.value = fx === 'fuzz' ? .6 : .8;
+        bus.double.connect(ws); ws.connect(g); g.connect(out);
+        nodes.shaper = ws; nodes.makeup = g;
+      } else if (fx === 'trem') {
+        // Tremolo : LFO qui module un gain entre .3 et 1.
+        const trem = ctx.createGain(); trem.gain.value = .65;
+        const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 5.5;
+        const lfoGain = ctx.createGain(); lfoGain.gain.value = .35;
+        lfo.connect(lfoGain); lfoGain.connect(trem.gain);
+        lfo.start();
+        bus.double.connect(trem); trem.connect(out);
+        nodes.trem = trem; nodes.lfo = lfo;
+      }
+      doubleFx = nodes;
+    }
+    // Reconstruit la chaîne quand l'utilisateur change D2.fx (appelé depuis l'écouteur).
+    function refreshDoubleFx() { buildDoubleFx(); }
+
     // 80 % = niveau nominal ; la courbe est quadratique pour que le bas du curseur reste utilisable
     function volumes() {
       if (ctx) for (const id of PART_IDS) bus[id].gain.value = Math.pow(S.parts[id].vol / .8, 2);
     }
 
+    // Dernière fréquence jouée par piste (pour le glide mélodique).
+    const lastF = {};
     function note(midi, t, dur, vel, timbre, part) {
       const T = TIMBRES[timbre], g = ctx.createGain(), f = ctx.createBiquadFilter();
       const peak = vel * .2, end = t + dur + T.r * 2;
@@ -1407,15 +1585,26 @@
       g.gain.linearRampToValueAtTime(peak, t + T.a);
       g.gain.setTargetAtTime(peak * T.s, t + T.a, T.d / 3);
       g.gain.setTargetAtTime(0, t + dur, T.r / 3);
+      const base = 440 * Math.pow(2, (midi - 69) / 12);
+      const glide = (part === 'mel' && S.parts.mel.glide > 0) ? S.parts.mel.glide : 0;
+      const prev = lastF[part];
+      const glideT = Math.min(dur * .5, .05 + glide * .25);
       for (const [type, semi, lvl] of T.oscs) {
         const o = ctx.createOscillator(), og = ctx.createGain();
         o.type = type;
-        o.frequency.value = 440 * Math.pow(2, (midi + semi - 69) / 12);
+        const target = base * Math.pow(2, semi / 12);
+        if (glide > 0 && prev && Math.abs(prev - base) > .01) {
+          o.frequency.setValueAtTime(prev * Math.pow(2, semi / 12), t);
+          o.frequency.exponentialRampToValueAtTime(target, t + glideT);
+        } else {
+          o.frequency.value = target;
+        }
         og.gain.value = lvl;
         o.connect(og); og.connect(f);
         o.start(t); o.stop(end);
       }
       f.connect(g); g.connect(bus[part] || out);
+      lastF[part] = base;
     }
 
     function env(t, peak, a, d) {
@@ -1510,7 +1699,7 @@
       $('#play').textContent = t('transport.play');
     }
 
-    return { chord, volumes, toggle: () => (timer ? stop() : start()), playing: () => !!timer };
+    return { chord, volumes, refreshDoubleFx, toggle: () => (timer ? stop() : start()), playing: () => !!timer };
   })();
 
   // ---------- Export ----------
@@ -1551,10 +1740,11 @@
 
   // L'export rejoue la boucle croche par croche avec stepEvents : le fichier contient exactement ce qu'on entend
   // (motif d'accompagnement, arpèges, basse, mélodie, batterie, swing), une piste par partie activée.
-  const GM_PROGRAM = { keys: 4, guitar: 27, pad: 89, dist: 29, synth: 81, strings: 48, pluck: 24, organ: 21 }; // piano électrique, guitare claire, pad, guitare saturée, lead, cordes, guitare nylon, accordéon
+  const GM_PROGRAM = { keys: 4, guitar: 27, pad: 89, dist: 29, synth: 81, strings: 48, pluck: 24, organ: 21, brass: 61 }; // piano électrique, guitare claire, pad, guitare saturée, lead, cordes, guitare nylon, accordéon, cuivres
   // Les noms de pistes MIDI suivent la langue au moment de l'export.
   const midiParts = () => [
     { track: 'chords', name: t('midi.chords'), chan: 0 },
+    { track: 'double', name: 'Double', chan: 3 },
     { track: 'bass', name: t('midi.bass'), chan: 1, program: 33 },
     { track: 'mel', name: t('midi.mel'), chan: 2, program: 80 },
     { track: 'drums', name: t('midi.drums'), chan: 9 },
@@ -1562,14 +1752,16 @@
 
   function buildMidi() {
     const PPQ = 480, us = Math.round(60e6 / S.tempo), tl = timeline(), end = tl.length * PPQ / 2;
-    const cond = [[0, 0, meta(0x03, ascii('Harmonie'))], [0, 0, meta(0x51, [(us >> 16) & 255, (us >> 8) & 255, us & 255])], [0, 0, meta(0x58, [meter().num, Math.log2(meter().den), meter().den === 8 ? 12 : 24, 8])]];
+    // MIDI exige un dénominateur puissance de 2 ; 3 → 2, 12 → 8 (plus proche musicalement, même feel).
+    const midiDen = { 3: 2, 12: 8 }[meter().den] || meter().den;
+    const cond = [[0, 0, meta(0x03, ascii('Harmonie'))], [0, 0, meta(0x51, [(us >> 16) & 255, (us >> 8) & 255, us & 255])], [0, 0, meta(0x58, [meter().num, Math.log2(midiDen), midiDen === 8 ? 12 : 24, 8])]];
     let tick = 0;
     for (const i of playOrder()) { const ch = S.chords[i]; cond.push([tick, 0, meta(0x06, ascii(info(ch).name))]); tick += ch.beats * PPQ; }
 
-    const notes = { chords: [], bass: [], mel: [], drums: [] };
+    const notes = { chords: [], double: [], bass: [], mel: [], drums: [] };
     for (let q = 0; q < tl.length; q++) for (const ev of stepEvents(q, tl)) {
       const on = Math.round((q + ev.off) * PPQ / 2);
-      if (ev.track === 'drums') notes.drums.push({ on, off: on + 60, m: GM_DRUM[ev.inst], vel: ev.inst === 'b' ? 45 : Math.round(40 + ev.vel * 70) });
+      if (ev.track === 'drums') notes.drums.push({ on, off: on + 60, m: GM_DRUM[ev.inst], vel: ev.inst === 'b' ? 45 : Math.min(127, Math.round(40 + ev.vel * 70)) });
       else notes[ev.track].push({ on, off: on + Math.max(30, Math.round(ev.dur * PPQ / 2)), m: ev.m, vel: Math.min(127, Math.round(ev.vel * 110)) });
     }
 
@@ -1584,7 +1776,9 @@
         last[n.m] = n;
         n.off = Math.min(n.off, end);
       }
-      const program = part.program != null ? part.program : part.track === 'chords' ? GM_PROGRAM[chordTimbre()] : null;
+      const program = part.program != null ? part.program
+        : part.track === 'chords' ? GM_PROGRAM[chordTimbre()]
+        : part.track === 'double' ? GM_PROGRAM[S.parts.double.timbre] : null;
       const evs = [[0, 0, meta(0x03, ascii(part.name))]];
       if (program != null) evs.push([0, 0, [0xc0 | part.chan, program]]);
       evs.push([0, 0, [0xb0 | part.chan, 7, Math.min(127, Math.round(100 * S.parts[part.track].vol / .8))]]); // volume de piste
@@ -1697,6 +1891,7 @@
     if (e.target.type === 'range') { if (id === 'chords' && k === 'color') renderDetail(); return; }
     S.parts[id][k] = isNaN(+e.target.value) ? e.target.value : +e.target.value;
     if (id === 'chords' && k === 'bars') return generate();
+    if (id === 'double' && k === 'fx' && Player.refreshDoubleFx) Player.refreshDoubleFx();
     save();
     renderParts();
   });

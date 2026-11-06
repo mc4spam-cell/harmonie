@@ -638,8 +638,8 @@
       ['acid-jazz', 'Acid jazz', 'funk', 'funk', 'breaks', 104, { timbre: 'keys' }],
       ['jazz-manouche', 'Jazz manouche', 'jazz', 'manouche', 'jazz', 190, { cshift: -.1, p: { dim: .5, tri: .1 },
         pools: { M: [['6', .2], ['69', .5], ['maj7', .7]], mt: [['m6', .25], ['m69', .6], ['m7', .7]] } }],
-      ['blues', 'Blues', 'blues', 'boogie', 'shuffle', 96, { timbre: 'guitar', meter: '12/8' }],
-      ['gospel', 'Gospel', 'soul', 'pop', 'rock', 100, { timbre: 'keys', meter: '12/8', p: { sec: [.15, .45], dim: .4 } }],
+      ['blues', 'Blues', 'blues', 'boogie', 'shuffle', 96, { timbre: 'guitar', meter: '12/12' }],
+      ['gospel', 'Gospel', 'soul', 'pop', 'rock', 100, { timbre: 'keys', meter: '12/12', p: { sec: [.15, .45], dim: .4 } }],
       ['boogie-woogie', 'Boogie-woogie', 'blues', 'boogie', 'shuffle', 160],
     ],
     world: [
@@ -809,15 +809,19 @@
   // ---------- Signatures rythmiques ----------
   // groups : la mesure découpée en temps, comptés en croches (2 = noire, 3 = noire pointée).
   // map : pour chaque temps, le temps d'une mesure à 4/4 dont on reprend les motifs de batterie et d'accompagnement.
+  // Les groupes sont exprimés en doubles croches (2 = une croche, 3 = une croche pointée / un temps ternaire).
+  // Le `map` sert à redistribuer un motif 4/4 (quatre temps) sur la mesure.
   const METERS = {
-    '2/4': { label: '2/4', groups: [2, 2], map: [0, 1] },
-    '3/4': { label: '3/4', groups: [2, 2, 2], map: [0, 1, 3] },
-    '4/4': { label: '4/4', groups: [2, 2, 2, 2], map: [0, 1, 2, 3] },
-    '5/4': { label: '5/4', groups: [2, 2, 2, 2, 2], map: [0, 1, 2, 1, 3] },
-    '6/8': { label: '6/8', groups: [3, 3], map: [0, 1] },
-    '7/8': { label: '7/8', groups: [2, 2, 3], map: [0, 1, 3] },
-    '9/8': { label: '9/8', groups: [3, 3, 3], map: [0, 1, 3] },
-    '12/8': { label: '12/8', groups: [3, 3, 3, 3], map: [0, 1, 2, 3] },
+    '3/4':   { label: '3/4',   groups: [2, 2, 2], map: [0, 1, 3] },
+    '4/4':   { label: '4/4',   groups: [2, 2, 2, 2], map: [0, 1, 2, 3] },
+    '5/8':   { label: '5/8',   groups: [2, 3], map: [0, 3] },
+    '6/8':   { label: '6/8',   groups: [3, 3], map: [0, 1] },
+    '7/8':   { label: '7/8',   groups: [2, 2, 3], map: [0, 1, 3] },
+    '8/8':   { label: '8/8',   groups: [3, 3, 2], map: [0, 1, 3] },
+    '9/12':  { label: '9/12',  groups: [3, 3, 3], map: [0, 1, 3] },
+    '10/12': { label: '10/12', groups: [3, 3, 2, 2], map: [0, 1, 2, 3] },
+    '11/12': { label: '11/12', groups: [3, 3, 3, 2], map: [0, 1, 2, 3] },
+    '12/12': { label: '12/12', groups: [3, 3, 3, 3], map: [0, 1, 2, 3] },
   };
   // L : croches par mesure ; B16 : doubles croches par mesure ; starts : début de chaque temps (en croches) ;
   // split : où se coupe une demi-mesure (sur un temps) ; compound : mesure à temps ternaires, sans swing.
@@ -825,10 +829,14 @@
     const M = METERS[id] || METERS['4/4'], starts = [];
     let L = 0;
     for (const g of M.groups) { starts.push(L); L += g; }
+    // split = la frontière de temps la plus proche du milieu de la mesure, sans la dépasser.
+    // (Avant : on ajoutait le groupe suivant AVANT de tester → `split` pouvait monter jusqu'à `L`, ce qui
+    // laissait 0 beat à la deuxième moitié des mesures sans frontière à L/2, comme 5/8.)
     let split = 0;
-    for (const g of M.groups) { if (split * 2 >= L) break; split += g; }
+    for (const g of M.groups) { if (split + g > L / 2) break; split += g; }
+    if (split === 0) split = M.groups[0]; // au moins un groupe dans la première moitié
     const [num, den] = (METERS[id] ? id : '4/4').split('/').map(Number);
-    return Object.assign({ id: METERS[id] ? id : '4/4', num, den, L, B16: 2 * L, starts, starts16: starts.map(x => x * 2), split, compound: M.groups.includes(3) }, M);
+    return Object.assign({ id: METERS[id] ? id : '4/4', num, den, L, B16: 2 * L, starts, starts16: starts.map(x => x * 2), split, compound: M.groups.every(g => g === 3) }, M);
   }
 
   // ---------- Utilitaires ----------
@@ -1348,7 +1356,8 @@
     const notes = [];
     let si = 0;
     for (let bar = 0; bar * B16 < total; bar++) {
-      const p = bar % N, varied = bar >= N && rand(seed, bar, 12) < vari;
+      // À vari = 1 (≥ .99), on force une variation à chaque mesure dès bar > 0 : deux mesures consécutives ne peuvent plus être identiques.
+      const p = bar % N, varied = vari >= .99 ? bar > 0 : bar >= N && rand(seed, bar, 12) < vari;
       rng = rngFrom(mix(seed, varied ? 5000 + bar : p, 13)); // mêmes tirages à chaque reprise du motif
       if (p === 0) { prev = null; dir = rng() < .5 ? 1 : -1; }
       let pos = bar * B16;
@@ -1448,7 +1457,8 @@
     let t = 0, prev = null;
     infos.forEach((c, i) => {
       const nx = infos[(i + 1) % infos.length], n = Math.ceil(c.len / 4 - 1e-6); // temps (noires) couverts par l'accord
-      const bar = Math.floor(t / B16), varied = bar >= N && rand(seed, bar, 21) < vari;
+      // À vari = 1 (≥ .99), on force une variation à chaque mesure : pas de répétition stricte d'un motif.
+      const bar = Math.floor(t / B16), varied = vari >= .99 ? bar > 0 : bar >= N && rand(seed, bar, 21) < vari;
       const rng = rngFrom(mix(seed, varied ? 5000 + bar : bar % N, 22 + (t % B16)));
       if (bar % N === 0 && t % B16 === 0) prev = null;
 

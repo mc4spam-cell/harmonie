@@ -105,7 +105,7 @@ window.__i18nAdd('fr', {
   'part.chords.dens': 'Densité',
   'part.chords.dens.hint': "De l’accord tenu au motif chargé (jeu « Motif du style »)",
   'part.chords.hint.bars': 'Longueur de la grille (en génère une nouvelle)',
-  'part.chords.hint.color': 'Richesse des accords, à la prochaine grille',
+  'part.chords.hint.color': 'Richesse harmonique — n\'agit qu\'à la prochaine grille (cliquez Régénérer)',
   'part.chords.hint.vari': 'Coups ajoutés ou retirés, arpèges retournés ou décalés',
 
   'part.bass.name': 'Basse',
@@ -247,6 +247,8 @@ window.__i18nAdd('fr', {
   'sc.arrows': 'Naviguer entre les accords',
   'sc.del': "Retirer l'accord sélectionné",
   'sc.undo': 'Annuler',
+  'about.author': 'Auteur',
+  'about.updated': 'Dernière mise à jour',
 
   'fn.T': 'Tonique',
   'fn.SD': 'Sous-dominante',
@@ -330,4 +332,76 @@ window.__i18nAdd('fr', {
   'midi.drums': 'Batterie',
 
   'prompt.copyGrid': 'Copier la grille :',
+
+  // Timbres partagés (accords, double)
+  'timbre.auto': 'Auto',
+  'timbre.keys': 'Piano',
+  'timbre.guitar': 'Guitare',
+  'timbre.pad': 'Nappe',
+  'timbre.pluck': 'Pincé',
+  'timbre.organ': 'Orgue',
+  'timbre.dist': 'Saturé',
+  'timbre.brass': 'Cuivres',
+  'timbre.synth': 'Synthé',
+
+  // Effets du double
+  'fx.none': 'Aucun',
+  'fx.sat': 'Saturation',
+  'fx.trem': 'Trémolo',
+  'fx.fuzz': 'Fuzz',
+
+  // Intervalles périodiques (breaks batterie, refrain mélodie)
+  'periodic.0': 'Aucun',
+  'periodic.2': 'Toutes les 2 mesures',
+  'periodic.4': 'Toutes les 4 mesures',
+  'periodic.8': 'Toutes les 8 mesures',
+  'periodic.16': 'Toutes les 16 mesures',
+
+  // Style de variation batterie
+  'varStyle.straight': 'Droit',
+  'varStyle.ghost': 'Notes fantômes',
+  'varStyle.syncop': 'Syncopes',
+  'varStyle.laidback': 'Laidback',
+  'varStyle.busy': 'Dense',
+
+  // Accords
+  'part.chords.timbre': 'Timbre',
+  'part.chords.timbre.hint': 'Force un timbre ; « Auto » suit le style',
+  'part.chords.dur': 'Durée',
+  'part.chords.dur.hint': 'Longueur des accords : 0 = staccato, 1 = tenu',
+  'part.chords.air': 'Aération',
+  'part.chords.air.hint': "Allège le voicing : enlève des notes de l'accord",
+
+  // Double
+  'part.double.name': 'Double',
+  'part.double.regen': 'Nouveau tirage',
+  'part.double.timbre': 'Timbre',
+  'part.double.timbre.hint': 'Son du double ; « Auto » suit le style',
+  'part.double.fx': 'Effet',
+  'part.double.fx.hint': 'Effet audio appliqué au double (saturation / trémolo / fuzz)',
+  'part.double.bars.follow': 'Suit les accords 1',
+  'part.double.hint.bars': 'Longueur du motif (suivie sur les accords 1)',
+
+  // Basse
+  'part.bass.durVar': 'Durées variables',
+  'part.bass.durVar.hint': 'Raccourcit certaines notes au hasard (phrasé)',
+  'part.bass.hint.dyn': 'Dynamique : plus elle est haute, plus les notes sont fortes et marquées (attaque)',
+
+  // Mélodie
+  'part.mel.where': 'Où jouer',
+  'part.mel.where.hint': 'Choisir sur quels accords la mélodie se pose',
+  'part.mel.where.all': 'Tous les accords',
+  'part.mel.where.odd': 'Accords impairs',
+  'part.mel.where.even': 'Accords pairs',
+  'part.mel.where.tonic': 'Sur la tonique seulement',
+  'part.mel.refrain': 'Refrain',
+  'part.mel.refrain.hint': 'Alterne couplet / refrain par blocs de N mesures ; le refrain rejoue le même motif à chaque passage',
+  'part.mel.glide': 'Glissando',
+  'part.mel.glide.hint': 'Lie les notes entre elles (legato → portamento)',
+
+  // Batterie
+  'part.drums.varStyle': 'Style de variation',
+  'part.drums.varStyle.hint': "Grain qui s'ajoute aux motifs, combinable avec les fills",
+  'part.drums.breaks': 'Breaks',
+  'part.drums.breaks.hint': 'Batterie et basse muettes sur le dernier temps de la mesure, à intervalle régulier',
 });

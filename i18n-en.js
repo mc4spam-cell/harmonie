@@ -114,7 +114,7 @@ window.__i18nAdd('en', {
   'part.chords.dens': 'Density',
   'part.chords.dens.hint': 'From sustained chord to busy pattern (Style pattern play)',
   'part.chords.hint.bars': 'Grid length (generates a new one)',
-  'part.chords.hint.color': 'Chord richness, from next grid',
+  'part.chords.hint.color': 'Harmonic richness — only takes effect on the next grid (click Regenerate)',
   'part.chords.hint.vari': 'Hits added or removed, arpeggios flipped or shifted',
 
   // Panneau Basse
@@ -266,6 +266,8 @@ window.__i18nAdd('en', {
   'sc.arrows': 'Navigate chords',
   'sc.del': 'Remove selected chord',
   'sc.undo': 'Undo',
+  'about.author': 'Author',
+  'about.updated': 'Last update',
 
   // Fonctions harmoniques
   'fn.T': 'Tonic',
@@ -357,4 +359,76 @@ window.__i18nAdd('en', {
 
   // Divers (prompts, copier)
   'prompt.copyGrid': 'Copy grid:',
+
+  // Shared timbres (chords, double)
+  'timbre.auto': 'Auto',
+  'timbre.keys': 'Piano',
+  'timbre.guitar': 'Guitar',
+  'timbre.pad': 'Pad',
+  'timbre.pluck': 'Pluck',
+  'timbre.organ': 'Organ',
+  'timbre.dist': 'Distorted',
+  'timbre.brass': 'Brass',
+  'timbre.synth': 'Synth',
+
+  // Double FX
+  'fx.none': 'None',
+  'fx.sat': 'Saturation',
+  'fx.trem': 'Tremolo',
+  'fx.fuzz': 'Fuzz',
+
+  // Periodic intervals (drum breaks, melody refrain)
+  'periodic.0': 'None',
+  'periodic.2': 'Every 2 bars',
+  'periodic.4': 'Every 4 bars',
+  'periodic.8': 'Every 8 bars',
+  'periodic.16': 'Every 16 bars',
+
+  // Drum variation style
+  'varStyle.straight': 'Straight',
+  'varStyle.ghost': 'Ghost notes',
+  'varStyle.syncop': 'Syncopation',
+  'varStyle.laidback': 'Laid-back',
+  'varStyle.busy': 'Busy',
+
+  // Chords
+  'part.chords.timbre': 'Timbre',
+  'part.chords.timbre.hint': 'Force a timbre; "Auto" follows the style',
+  'part.chords.dur': 'Duration',
+  'part.chords.dur.hint': 'Chord length: 0 = staccato, 1 = sustained',
+  'part.chords.air': 'Airiness',
+  'part.chords.air.hint': 'Thins the voicing by removing chord tones',
+
+  // Double
+  'part.double.name': 'Double',
+  'part.double.regen': 'New take',
+  'part.double.timbre': 'Timbre',
+  'part.double.timbre.hint': 'Double sound; "Auto" follows the style',
+  'part.double.fx': 'Effect',
+  'part.double.fx.hint': 'Audio effect on the double (saturation / tremolo / fuzz)',
+  'part.double.bars.follow': 'Follows chords 1',
+  'part.double.hint.bars': 'Motif length (inherited from chords 1)',
+
+  // Bass
+  'part.bass.durVar': 'Variable durations',
+  'part.bass.durVar.hint': 'Randomly shortens some notes (phrasing)',
+  'part.bass.hint.dyn': 'Dynamics: higher means louder and more accented (attack)',
+
+  // Melody
+  'part.mel.where': 'Where',
+  'part.mel.where.hint': 'Choose which chords the melody lands on',
+  'part.mel.where.all': 'All chords',
+  'part.mel.where.odd': 'Odd chords',
+  'part.mel.where.even': 'Even chords',
+  'part.mel.where.tonic': 'Tonic only',
+  'part.mel.refrain': 'Refrain',
+  'part.mel.refrain.hint': 'Alternates verse / refrain by blocks of N bars; the refrain replays the same motif each pass',
+  'part.mel.glide': 'Glide',
+  'part.mel.glide.hint': 'Ties notes together (legato → portamento)',
+
+  // Drums
+  'part.drums.varStyle': 'Variation style',
+  'part.drums.varStyle.hint': 'Flavour layered on top of the patterns, combines with fills',
+  'part.drums.breaks': 'Breaks',
+  'part.drums.breaks.hint': 'Drums and bass drop on the last beat of the bar, at a regular interval',
 });

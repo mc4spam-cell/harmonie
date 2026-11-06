@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Outil local : pas de cache du HTML (les scripts sont déjà rechargés via ?t=Date.now()). Évite qu'un iPhone ou Safari garde une version obsolète. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Harmonie</title>
 <style>
   :root {
@@ -513,6 +517,7 @@
   dl.sc { margin: 0; padding: 16px 18px 18px; display: grid; grid-template-columns: auto 1fr; gap: 11px 16px; align-items: baseline; }
   dl.sc dt { margin: 0; white-space: nowrap; }
   dl.sc dd { margin: 0; color: var(--muted); }
+  .sc-credits { margin: 0; padding: 12px 18px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.6; }
   html[data-look="studio"] .sheet-head h2 { font-weight: 300; letter-spacing: .04em; }
 
   /* sélecteur d'habillage */
@@ -668,6 +673,10 @@
     <dt><kbd>Del</kbd> <kbd>⌫</kbd></dt><dd data-i18n="sc.del">Remove selected chord</dd>
     <dt><kbd>⌘Z</kbd> <kbd>Ctrl+Z</kbd></dt><dd data-i18n="sc.undo">Undo</dd>
   </dl>
+  <p class="sc-credits">
+    <span data-i18n="about.author">Author</span> : MC4Spam<br>
+    <span data-i18n="about.updated">Last update</span> : <span id="aboutDate"></span>
+  </p>
 </dialog>
 <dialog id="langSheet" aria-labelledby="langTitle">
   <div class="lang-grid" id="langGrid"></div>
@@ -691,6 +700,17 @@
   (function () {
     const dlg = document.getElementById('shortcuts'), btn = document.getElementById('help');
     if (!dlg || !btn) return;
+    // Date affichée : document.lastModified du HTML servi, reformatée selon la langue courante.
+    const dateEl = document.getElementById('aboutDate');
+    const fmtDate = () => {
+      if (!dateEl) return;
+      const d = new Date(document.lastModified);
+      if (isNaN(d)) { dateEl.textContent = document.lastModified; return; }
+      const lang = (window.i18n && window.i18n.lang) || 'en';
+      dateEl.textContent = d.toLocaleDateString(lang, { year: 'numeric', month: 'long', day: 'numeric' });
+    };
+    fmtDate();
+    window.addEventListener('langchange', fmtDate);
     btn.addEventListener('click', () => { btn.setAttribute('aria-expanded', 'true'); dlg.showModal(); });
     dlg.addEventListener('close', () => btn.setAttribute('aria-expanded', 'false'));
     dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); }); // clic sur le fond
