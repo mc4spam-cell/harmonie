@@ -171,11 +171,11 @@ Un style est la combinaison de :
   - des indicateurs : style jazzy (♭VII et IV mineur traités comme dominantes), boucle, goût de cadence, plancher des emprunts, grille de blues ;
 - des **retouches** (`CATALOG`), qui remplacent ou complètent les champs de l'archétype : biais, probabilités, répertoires, décalage de couleur, plancher des emprunts, boucle, timbre des accords, mesure naturelle, tempo ;
 - un **motif d'accompagnement** (`PATTERNS`, 28 motifs) ;
-- un **kit de batterie** (`DRUMS`, 29 kits, plus 4 kits propres aux mesures 3/4, 6/8, 7/8 et 12/8).
+- un **kit de batterie** (`DRUMS`, 29 kits, plus un kit propre à la mesure 3/4 ; les autres mesures impaires redistribuent les kits 4/4).
 
 ### Ce qu'un style détermine
 
-Vocabulaire harmonique (biais, départ, enrichissements, qualités), boucle ou non, timbre des accords, mesure naturelle (8 styles : Prog, Prog et Musique balkanique en 7/8 ; Blues et Gospel en 12/8 ; Musique celtique et Gnawa en 6/8 ; Musette en 3/4), tempo par défaut (de 60 à 200 bpm), motif d'accompagnement, kit de batterie, forme en blues.
+Vocabulaire harmonique (biais, départ, enrichissements, qualités), boucle ou non, timbre des accords, mesure naturelle (Prog-rock, Prog-metal et Musique balkanique en 7/8 ; Blues et Gospel en 12/12 ; Musique celtique et Gnawa en 6/8 ; Musette en 3/4), tempo par défaut (de 60 à 200 bpm), motif d'accompagnement, kit de batterie, forme en blues.
 
 Un style ne pose ni le mode ni l'ambiance ; ceux-ci restent en place.
 
@@ -263,7 +263,7 @@ Certaines valeurs (couleur des accords, accords de la grille) ne prennent effet 
   - densité au-dessus de 0,66 : toutes les croches.
   - La variation supprime des coups du motif ou en ajoute.
 - **Arpèges** : notes de l'accord, prolongées d'une octave, parcourues dans le sens choisi. Les notes sont réparties par mesure, avec une inversion ou un décalage de départ tirés selon la variation.
-  - Croches : une note par croche ; doubles croches : deux. Triolets : trois notes sur chaque paire de croches de l'accord ; une croche restée seule en fin d'accord (accord d'un nombre impair de croches, en 6/8, 7/8, 9/8…) reçoit une seule note.
+  - Croches : une note par croche ; doubles croches : deux. Triolets : trois notes sur chaque paire de croches de l'accord ; une croche restée seule en fin d'accord (accord d'un nombre impair de croches, en 5/8, 7/8, 9/12…) reçoit une seule note.
   - Chaque note dure 1,7 fois l'écart entre deux notes, mais s'arrête avant le changement d'accord (swing compris) : aucune note d'arpège ne déborde sur l'accord suivant.
 - **Timbre des accords plaqués et arpégés** : un style au timbre pad est joué au piano électrique (keys) dès que le jeu n'est plus « Motif du style ». L'export MIDI écrit le programme du timbre réellement joué.
 - **Basse avec un accord joué en arpège ou en plaqué** (basse en « Motif du style ») : la fondamentale tient au début de chaque accord, jusqu'à quatre temps.
@@ -328,16 +328,18 @@ Les longueurs de motif (1 à 8 mesures) s'appliquent à la ligne de basse, rejou
 
 ## 8. Mesures
 
-| Signature | Découpage en temps (en noires) | Remarque |
+| Signature | Groupes (en croches) | Remarque |
 |---|---|---|
-| 2/4 | 2 temps | adapté des motifs 4/4 |
-| 3/4 | 3 temps | motifs propres si la case est cochée (« Valse ») |
-| 4/4 | 4 temps | motifs de référence |
-| 5/4 | 5 temps | adapté, répartition des motifs 1, 2, 3, 2, 4 |
-| 6/8 | 2 temps ternaires (noire pointée) | motifs propres (« Ballade en 6/8 ») |
-| 7/8 | 2 + 2 + 3 (croches) | motifs propres (« 7/8 (2+2+3) ») |
-| 9/8 | 3 temps ternaires | adapté |
-| 12/8 | 4 temps ternaires | motifs propres (« Blues en 12/8 ») |
+| 3/4   | 2 + 2 + 2 | motifs propres si la case est cochée (« Valse ») |
+| 4/4   | 2 + 2 + 2 + 2 | motifs de référence |
+| 5/8   | 2 + 3 | redistribution des motifs 4/4 |
+| 6/8   | 3 + 3 | redistribution ternaire |
+| 7/8   | 2 + 2 + 3 | redistribution |
+| 8/8   | 3 + 3 + 2 | mixte balkan |
+| 9/12  | 3 + 3 + 3 | ternaire |
+| 10/12 | 3 + 3 + 2 + 2 | mixte |
+| 11/12 | 3 + 3 + 3 + 2 | mixte |
+| 12/12 | 3 + 3 + 3 + 3 | ternaire |
 
 **Motifs adaptés** (mesures sans motifs propres, ou case décochée) : chaque temps reprend le temps correspondant du motif 4/4 d'origine (table `map`). Un temps ternaire garde l'appui et la croche en l'air ; les instruments qui marquent la pulsation (charleys, ride, shaker, balais) y jouent les trois croches.
 

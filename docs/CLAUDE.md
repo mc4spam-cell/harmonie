@@ -14,8 +14,8 @@ Quand un comportement change, mettre à jour `docs/SPECIFICATIONS.md` dans le m�
 - **Catalogue de styles** : c'est la liste de référence de l'utilisateur (9 familles, 111 styles). Chaque style = un archétype harmonique (`ARCH`) + des retouches (`CATALOG`) dans `engine.js`, et il désigne un motif d'accompagnement (`PATTERNS`) et un kit de batterie (`DRUMS`) définis dans `app.js`.
 - **Ambiances** : ce sont des préréglages. Choisir une ambiance pose des réglages visibles et modifiables (mode, tempo, brillance, réglages des instruments) et oriente l'harmonie. Aucun modificateur caché n'agit sur le jeu.
 - **Basse** : « Jeu » (quelles notes) et « Rythme » (quand) restent deux réglages distincts.
-- **Mesures** : 2/4 à 12/8.
-  - Les motifs 4/4 sont redistribués sur la mesure (`toMeter`, `compPos`). Pour 3/4, 6/8, 7/8 et 12/8, des motifs propres optionnels existent (`METER_COMPS`, `METER_KITS`).
+- **Mesures** : 3/4, 4/4, 5/8, 6/8, 7/8, 8/8, 9/12, 10/12, 11/12, 12/12.
+  - Les motifs 4/4 sont redistribués sur la mesure (`toMeter`, `compPos`). Seule la 3/4 a un motif propre (`METER_COMPS`, `METER_KITS` — « Valse »).
   - Un style peut déclarer sa mesure naturelle (`meter`) ; choisir un style la pose.
 - **Habillage** : « Classique » par défaut (panneaux de fond, bordures arrondies, boutons à fond plein) ; « Studio » (minimal, filets très fins, une seule couleur d'accent) reste disponible derrière un sélecteur.
 - **Doigtés** : les vues basse et guitare sont toutes deux horizontales, corde aiguë en haut et sillet à gauche, par souci de cohérence demandé par l'utilisateur.

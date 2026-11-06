@@ -22,7 +22,7 @@ Les réglages et la grille en cours sont enregistrés dans le navigateur de chaq
 - **Retouche accord par accord** : remplacements (autre couleur, même fonction, accord qui amène le suivant) et suites possibles, classées de l'attendu au surprenant.
 - **Styles** : 111 styles répartis en 9 familles (Rock, Metal, Pop, Électronique, Hip-hop / R&B, Jazz / Blues, Musiques du monde, Folk / Country, Classique / Orchestral). Chaque style a son vocabulaire harmonique, son accompagnement et sa batterie, et certains ont leur mesure naturelle.
 - **Ambiances** : 26 ambiances (lumineuses, paisibles, tendres, tristes, sombres, intenses). Choisir une ambiance pose un ensemble de réglages visibles, qui restent modifiables, et oriente l'harmonie.
-- **Mesures** : 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8 et 12/8, avec des motifs propres pour la valse, le 6/8, le 7/8 et le blues en 12/8.
+- **Mesures** : 3/4, 4/4, 5/8, 6/8, 7/8, 8/8, 9/12, 10/12, 11/12 et 12/12 (motifs propres pour la valse 3/4 ; les autres mesures impaires redistribuent les motifs 4/4).
 - **Pont** : section contrastante dans une tonalité voisine (demi-ton, ton, tierce mineure, relatif, homonyme, sous-dominante, dominante), jouée en forme A B ou A A B A.
 - **Instruments** : accords, basse, mélodie et batterie ont chacun leur panneau. On y règle l'activation, la longueur du motif, la couleur, la façon de jouer, la variation, le volume et la dynamique, et on peut régénérer chaque partie séparément.
   - La basse sépare le choix des notes (fondamentale, quinte, octave, arpège, walking, pédale, riff, ligne chantante…) de celui du rythme (valeurs de notes, syncopé, pompe, anticipé, notes fantômes, calé sur la grosse caisse).
