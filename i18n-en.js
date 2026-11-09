@@ -79,14 +79,18 @@ window.__i18nAdd('en', {
   'part.regen': '↻ Regenerate',
   'part.play': 'Play',
   'part.bars': 'Bars',
-  'part.rate': 'Rate',
+  'part.pattern': 'Pattern',
+  'part.pattern.hint': 'Rhythmic pattern of the arpeggio; pair with "Density" to thin it out',
+  'pattern.straight': 'Straight',
+  'pattern.slow': 'Slow',
+  'pattern.gallop': 'Gallop',
+  'pattern.charleston': 'Charleston',
+  'pattern.tresillo': 'Tresillo',
+  'pattern.alberti': 'Alberti',
   'slider.color': 'Color',
   'slider.vari': 'Variation',
   'slider.vol': 'Volume',
   'slider.dyn': 'Dynamics',
-  'rate.2': 'Eighths',
-  'rate.3': 'Triplets',
-  'rate.4': 'Sixteenths',
   'barsMotif.0': 'Whole grid',
   'barsMotif.1': '1-bar motif',
   'barsMotif.2': '2-bar motif',
@@ -98,7 +102,7 @@ window.__i18nAdd('en', {
   'chordBars.16': '16 bars',
 
   // Panneau Accords
-  'part.chords.name': 'Chords',
+  'part.chords.name': 'Chords 1',
   'part.chords.regen': 'New chord grid (G)',
   'part.chords.play.style': 'Style pattern',
   'part.chords.play.block': 'Block chords',
@@ -372,11 +376,6 @@ window.__i18nAdd('en', {
   'timbre.synth': 'Synth',
 
   // Double FX
-  'fx.none': 'None',
-  'fx.sat': 'Saturation',
-  'fx.trem': 'Tremolo',
-  'fx.fuzz': 'Fuzz',
-
   // Periodic intervals (drum breaks, melody refrain)
   'periodic.0': 'None',
   'periodic.2': 'Every 2 bars',
@@ -400,15 +399,17 @@ window.__i18nAdd('en', {
   'part.chords.air.hint': 'Thins the voicing by removing chord tones',
 
   // Double
-  'part.double.name': 'Double',
+  'part.double.name': 'Chords 2',
+  'part.double.where': 'Where',
+  'part.double.where.hint': 'Bars in the cycle where Chords 2 plays; the rest is silent',
+  'part.double.where.all': 'Everywhere',
+  'part.double.where.odd': 'Odd bars',
+  'part.double.where.even': 'Even bars',
+  'part.double.where.first': 'First half',
+  'part.double.where.second': 'Second half',
   'part.double.regen': 'New take',
   'part.double.timbre': 'Timbre',
   'part.double.timbre.hint': 'Double sound; "Auto" follows the style',
-  'part.double.fx': 'Effect',
-  'part.double.fx.hint': 'Audio effect on the double (saturation / tremolo / fuzz)',
-  'part.double.bars.follow': 'Follows chords 1',
-  'part.double.hint.bars': 'Motif length (inherited from chords 1)',
-
   // Bass
   'part.bass.durVar': 'Variable durations',
   'part.bass.durVar.hint': 'Randomly shortens some notes (phrasing)',

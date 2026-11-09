@@ -1578,5 +1578,26 @@
     return out;
   }
 
-  return { METERS, meterInfo, rand, harmonyMap, keyOf, bridge, BRIDGES, FAMILIES, MOOD_GROUPS, moodPreset, TONICS, STYLES, MOODS, melody, bassLine, Q, SCALES, makeKey, generate, suggestNext, suggestReplace, setQuality, chordInfo, voicing, rngFrom };
+  // Motif rythmique de l'arpège sur un pas de croche (k = 8ème dans l'accord, 0-indexé).
+  // Renvoie les frappes à poser à ce pas : {off, dur, j} en croches, où j indexe la note du cycle d'arpège.
+  function arpStrikes(pat, k) {
+    if (pat === 'slow') return k % 2 === 0 ? [{ off: 0, dur: 2, j: k / 2 }] : [];
+    if (pat === 'gallop') return k % 2 === 0
+      ? [{ off: 0, dur: .5, j: k * 2 }, { off: .5, dur: .5, j: k * 2 + 1 }]
+      : [{ off: 0, dur: 1, j: k * 2 }];
+    if (pat === 'charleston') {
+      const m = k % 4;
+      if (m === 0) return [{ off: 0, dur: 1.5, j: Math.floor(k / 4) * 2 }];
+      if (m === 3) return [{ off: 0, dur: 1, j: Math.floor(k / 4) * 2 + 1 }];
+      return [];
+    }
+    if (pat === 'tresillo') {
+      if (k % 2 !== 0) return [];
+      const j0 = k * 3 / 2;
+      return [{ off: 0, dur: .75, j: j0 }, { off: .75, dur: .75, j: j0 + 1 }, { off: 1.5, dur: .5, j: j0 + 2 }];
+    }
+    return [{ off: 0, dur: 1, j: k }];
+  }
+
+  return { METERS, meterInfo, rand, harmonyMap, keyOf, bridge, BRIDGES, FAMILIES, MOOD_GROUPS, moodPreset, TONICS, STYLES, MOODS, melody, bassLine, Q, SCALES, makeKey, generate, suggestNext, suggestReplace, setQuality, chordInfo, voicing, rngFrom, arpStrikes };
 });

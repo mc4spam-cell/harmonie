@@ -15,8 +15,8 @@
   const PART_IDS = ['chords', 'double', 'bass', 'mel', 'drums'];
   const newSeed = () => (Math.random() * 1e9) | 0;
   const defaultParts = () => ({
-    chords: { on: true, bars: 8, color: .5, play: 'style', rate: 2, dens: .5, reg: 0, dur: .5, air: 0, timbre: 'auto', vari: .15, vol: .8, dyn: .5, seed: newSeed() },
-    double: { on: false, bars: 0, color: .5, play: 'style', rate: 2, dens: .5, reg: 0, dur: .5, air: 0, timbre: 'guitar', fx: 'none', vari: .15, vol: .6, dyn: .5, seed: newSeed() },
+    chords: { on: true, bars: 8, color: .5, play: 'style', pattern: 'straight', dens: .5, reg: 0, dur: .5, air: 0, timbre: 'auto', vari: .15, vol: .8, dyn: .5, seed: newSeed() },
+    double: { on: false, bars: 0, color: .5, play: 'style', pattern: 'straight', where: 'all', dens: .5, reg: 0, dur: .5, air: 0, timbre: 'guitar', vari: .15, vol: .6, dyn: .5, seed: newSeed() },
     bass: { on: true, bars: 0, color: .5, play: 'style', rhythm: 'auto', durVar: 0, vari: .15, vol: .8, dyn: .5, seed: newSeed() },
     mel: { on: false, bars: 0, color: .5, play: 'mid', air: .25, octave: 0, contour: 'free', glide: 0, where: 'all', refrain: 0, refrainSeed: newSeed(), vari: .3, vol: .8, dyn: .5, seed: newSeed() },
     drums: { on: true, bars: 4, breaks: 0, color: .5, play: 'mid', varStyle: 'straight', vari: .15, vol: .8, dyn: .5, seed: newSeed() },
@@ -41,7 +41,6 @@
       if (old.color != null) d.chords.color = old.color;
       if (old.bars) d.chords.bars = old.bars;
       if (old.comp) d.chords.play = old.comp;
-      if (old.rate) d.chords.rate = old.rate;
       if (old.bass === 'off') d.bass.on = false; else if (old.bass) d.bass.play = old.bass;
       if (old.bassSeed) d.bass.seed = old.bassSeed;
       if (old.mel != null) d.mel.on = !!old.mel;
@@ -51,6 +50,8 @@
       S.parts = d;
       for (const k of ['color', 'bars', 'comp', 'rate', 'bass', 'bassSeed', 'mel', 'melDensity', 'melSeed', 'drums']) delete S[k];
     } else for (const id of PART_IDS) S.parts[id] = Object.assign(d[id], S.parts[id]);
+    // Ancien « rate » numérique → nouveau motif rythmique.
+    for (const id of ['chords', 'double']) if (S.parts[id].rate != null) { delete S.parts[id].rate; S.parts[id].pattern = S.parts[id].pattern || 'straight'; }
   }
 
   // bright : brillance générale du son (0..1). Les anciens réglages « selon l'ambiance » deviennent explicites.
@@ -90,9 +91,16 @@
   const meter = () => H.meterInfo(S.meter);
   const hstate = () => ({ tonic: S.tonic, minor: S.minor, style: S.style, mood: S.mood, meter: S.meter, color: S.parts.chords.color, bars: S.parts.chords.bars, chords: S.chords });
 
-  function pushUndo() {
+  // Coalesce : un même contrôle poussé plusieurs fois à la suite ne garde qu'un snapshot (le plus ancien) ;
+  // Ctrl-Z revient alors avant la rafale, pas au coup précédent. Appels sans tag jamais coalescés.
+  let lastUndoTag = null, lastUndoAt = 0;
+  function pushUndo(tag) {
+    const now = Date.now();
+    if (tag && tag === lastUndoTag && now - lastUndoAt < 1000) { lastUndoAt = now; return; }
     undoStack.push(JSON.stringify(S));
     if (undoStack.length > 20) undoStack.shift();
+    lastUndoTag = tag || null;
+    lastUndoAt = now;
   }
   function undo() {
     if (!undoStack.length) return;
@@ -183,19 +191,16 @@
     double: {
       name: t('part.double.name'), regen: t('part.double.regen'),
       plays: ['style', 'block', 'up', 'down', 'updown', 'random'].map(k => [k, t('part.chords.play.' + k)]),
-      bars: [[0, t('part.double.bars.follow')]],
       extra: [
         { k: 'reg', label: t('part.chords.reg'), hint: t('part.chords.reg.hint'),
           options: [[-1, t('part.chords.reg.low')], [0, t('part.chords.reg.mid')], [1, t('part.chords.reg.high')]] },
         { k: 'timbre', label: t('part.double.timbre'), hint: t('part.double.timbre.hint'),
           options: ['auto', 'keys', 'guitar', 'pad', 'pluck', 'organ', 'dist', 'brass', 'synth'].map(k => [k, t('timbre.' + k)]) },
-        { k: 'fx', label: t('part.double.fx'), hint: t('part.double.fx.hint'),
-          options: ['none', 'sat', 'trem', 'fuzz'].map(k => [k, t('fx.' + k)]) },
         { k: 'dens', label: t('part.chords.dens'), hint: t('part.chords.dens.hint'), range: true },
         { k: 'dur',  label: t('part.chords.dur'), hint: t('part.chords.dur.hint'), range: true },
         { k: 'air',  label: t('part.chords.air'), hint: t('part.chords.air.hint'), range: true },
       ],
-      hint: { bars: t('part.double.hint.bars'), color: t('part.chords.hint.color'), vari: t('part.chords.hint.vari') },
+      hint: { color: t('part.chords.hint.color'), vari: t('part.chords.hint.vari') },
     },
     bass: {
       name: t('part.bass.name'), regen: t('part.bass.regen'),
@@ -239,17 +244,17 @@
     },
   });
   const SLIDERS = () => ['color', 'vari', 'vol', 'dyn'].map(k => [k, t('slider.' + k)]);
-  const RATES = () => [2, 3, 4].map(n => [n, t('rate.' + n)]);
+  const ARP_PATTERNS = () => ['straight', 'slow', 'gallop', 'charleston', 'tresillo', 'alberti'].map(k => [k, t('pattern.' + k)]);
   const options = (list, cur) => list.map(([v, l]) => `<option value="${v}" ${String(v) === String(cur) ? 'selected' : ''}>${l}</option>`).join('');
 
   function renderParts() {
-    const UI = PART_UI(), SL = SLIDERS(), RT = RATES();
+    const UI = PART_UI(), SL = SLIDERS(), PT = ARP_PATTERNS();
     $('#parts').innerHTML = PART_IDS.map(id => {
       const P = S.parts[id], U = UI[id];
       const slider = (k, l, hint) => `<label title="${hint}">${l}</label>
         <div class="row"><input type="range" min="0" max="100" value="${Math.round(P[k] * 100)}" data-k="${k}" aria-label="${l} — ${U.name}" title="${hint}"><output>${Math.round(P[k] * 100)}</output></div>`;
       const isArpPlay = p => p.play !== 'style' && p.play !== 'block';
-      const rate = (id === 'chords' || id === 'double') && isArpPlay(P) ? `<label>${t('part.rate')}</label><select data-k="rate">${options(RT, P.rate)}</select>` : '';
+      const rate = (id === 'chords' || id === 'double') && isArpPlay(P) ? `<label title="${t('part.pattern.hint')}">${t('part.pattern')}</label><select data-k="pattern" title="${t('part.pattern.hint')}">${options(PT, P.pattern)}</select>` : '';
       return `<section class="part${P.on ? '' : ' off'}" data-part="${id}">
         <header>
           <button class="switch" role="switch" aria-checked="${P.on}" aria-label="${U.name}" data-k="on"><i></i></button>
@@ -258,7 +263,9 @@
         </header>
         <div class="rows">
           <label>${t('part.play')}</label><select data-k="play">${options(U.plays, P.play)}</select>${rate}
-          <label title="${U.hint.bars}">${U.barsLabel || t('part.bars')}</label><select data-k="bars" title="${U.hint.bars}">${options(U.bars, P.bars)}</select>
+          ${id === 'double'
+            ? `<label title="${t('part.double.where.hint')}">${t('part.double.where')}</label><select data-k="where" title="${t('part.double.where.hint')}">${options(['all', 'odd', 'even', 'first', 'second'].map(k => [k, t('part.double.where.' + k)]), P.where)}</select>`
+            : `<label title="${U.hint.bars}">${U.barsLabel || t('part.bars')}</label><select data-k="bars" title="${U.hint.bars}">${options(U.bars, P.bars)}</select>`}
           ${(U.extra || []).map(x => (x.range ? slider(x.k, x.label, x.hint) : `<label title="${x.hint}">${x.label}</label><select data-k="${x.k}" title="${x.hint}" ${x.show && !x.show(P) ? 'disabled' : ''}>${options(x.options, P[x.k])}</select>`)).join('')}
           ${SL.filter(([k]) => !(id === 'double' && k === 'color')).map(([k, l]) => slider(k, l, U.hint[k] || '')).join('')}
         </div>
@@ -873,6 +880,14 @@
   }
   // q : croche dans la boucle. Tous les tirages en dépendent, pour que l'export MIDI redonne ce qu'on entend.
   // Variation : certaines mesures retournent l'arpège ou le font partir d'une autre note.
+  const arpStrikes = H.arpStrikes;
+  // Alberti : grave - aigu - médian - aigu, sur les notes du voicing.
+  function albertiNote(v, j) {
+    const n = v.notes, L = n.length;
+    if (L < 2) return n[0];
+    const seq = [n[0], n[L - 1], n[Math.floor(L / 2)], n[L - 1]];
+    return seq[j % 4];
+  }
   function arpNote(v, k, q, part) {
     part = part || S.parts.chords;
     const bar = Math.floor(q / meter().L);
@@ -1388,11 +1403,17 @@
   }
 
   // ---------- Partition ----------
-  // Une entrée par croche : quel accord sonne, et s'il commence là.
+  // Une entrée par croche : quel accord sonne, et s'il commence là. Caché sur la signature de la grille,
+  // car la lecture appelle timeline() plusieurs fois par tick.
+  const tlCache = { key: '', tl: [] };
   function timeline() {
-    const tl = [];
-    for (const i of playOrder()) for (let k = 0; k < S.chords[i].beats * 2; k++) tl.push({ i, k, start: k === 0 });
-    return tl;
+    const k = JSON.stringify([playOrder(), S.chords.map(c => c.beats)]);
+    if (tlCache.key !== k) {
+      const tl = [];
+      for (const i of playOrder()) for (let kk = 0; kk < S.chords[i].beats * 2; kk++) tl.push({ i, k: kk, start: kk === 0 });
+      Object.assign(tlCache, { key: k, tl });
+    }
+    return tlCache.tl;
   }
 
   // Tout ce qui sonne à la croche q de la boucle. Source unique pour la lecture et pour l'export MIDI.
@@ -1402,6 +1423,9 @@
     const e = tl[q], ch = S.chords[e.i], P = pattern(), ev = [];
     const C = S.parts.chords, D2 = S.parts.double, B = S.parts.bass, D = S.parts.drums, M = S.parts.mel;
     const m = meter(), sw = q % 2 && !m.compound ? P.swing : 0, pos = q % m.L, cp = ownMeter() ? pos : compPos(pos), v = H.voicing(ch, keyFor(ch), 59 + 7 * S.parts.chords.reg);
+    // Nombre de mesures de la section A, calculé paresseusement (une seule fois par tick même si les deux parts le demandent).
+    let _barsA = -1;
+    const barsA = () => _barsA >= 0 ? _barsA : (_barsA = Math.max(1, Math.round(gridChords().reduce((s, c) => s + c.beats, 0) * 2 / m.L)));
     // Break : à la dernière mesure de chaque cycle, on « saute un temps » sur batterie et basse (dernier temps muet).
     // Les accords continuent, pour que la musique garde son harmonie et que le silence des percussions soit entendu comme une respiration.
     const breakBar = D.on && D.breaks > 0 && Math.floor(q / m.L) % D.breaks === D.breaks - 1;
@@ -1448,6 +1472,18 @@
     // éviter une double ligne de basse.
     function emitChordPart(part, track, timbre) {
       if (!part.on) return;
+      // « Où » : filtre par mesure. odd/even sur toute la boucle ; first/second sur la section A seule (ignore le pont).
+      if (part.where && part.where !== 'all') {
+        const bar = Math.floor(q / m.L), w = part.where;
+        if (w === 'odd' && bar % 2 !== 0) return;
+        if (w === 'even' && bar % 2 !== 1) return;
+        if (w === 'first' || w === 'second') {
+          const bA = barsA(), half = Math.ceil(bA / 2);
+          if (bar >= bA) return; // mesures du pont : ne joue pas en mode first/second
+          if (w === 'first' && bar >= half) return;
+          if (w === 'second' && bar < half) return;
+        }
+      }
       const voi = H.voicing(ch, keyFor(ch), 59 + 7 * (part.reg || 0));
       const notes = voicingForAir(voi.notes, part.air || 0);
       const dm = durMul(part);
@@ -1455,12 +1491,17 @@
         if (part.play === 'block' && e.start) {
           notes.forEach((mm, k) => add(track, mm, 0, ch.beats * 2 * .95 * dm, .7, timbre, k * .008));
         } else if (part.play !== 'block') {
-          const r = part.rate || 2, len8 = Math.round(ch.beats * 2), alone = r === 3 && e.k + 1 >= len8;
-          const per = r === 3 ? (e.k % 2 ? 0 : alone ? 1 : 3) : r / 2, gap = alone ? 1 : 2 / r;
-          for (let j = 0; j < per; j++) {
-            const off = (r === 2 ? sw : 0) + j * gap, room = len8 - e.k - off;
-            add(track, arpNote(voi, e.k * r / 2 + j, q, part), off, Math.min(gap * 1.7 * dm, room * .97), .7, timbre);
-          }
+          // Motif rythmique de l'arpège. `dens` creuse l'arpège sous 0,5 (silences tirés par la graine).
+          const pat = part.pattern || 'straight', len8 = Math.round(ch.beats * 2);
+          const strikes = arpStrikes(pat, e.k, len8);
+          const skipProb = Math.max(0, .5 - (part.dens ?? .5)) * 1.5;
+          strikes.forEach((st, si) => {
+            if (H.rand(part.seed, q, 70 + si) < skipProb) return;
+            const room = len8 - e.k - st.off;
+            const dur = Math.min(st.dur * 1.4 * dm, room * .97);
+            const n = pat === 'alberti' ? albertiNote(voi, st.j) : arpNote(voi, st.j, q, part);
+            add(track, n, sw + st.off, dur, .7, timbre);
+          });
         }
         return;
       }
@@ -1516,8 +1557,6 @@
           bus[id] = ctx.createGain();
           bus[id].connect(out);
         }
-        // Chaîne fx du « double » : waveshaper (sat/fuzz) + tremolo LFO. Rebranchée quand D2.fx change.
-        buildDoubleFx();
         volumes();
         noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
         const d = noiseBuf.getChannelData(0);
@@ -1525,49 +1564,6 @@
       }
       if (ctx.state === 'suspended') ctx.resume();
     }
-
-    // Courbes de distorsion pour le WaveShaperNode.
-    function satCurve(k) {
-      const n = 512, c = new Float32Array(n);
-      for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; c[i] = Math.tanh(k * x); }
-      return c;
-    }
-    function fuzzCurve(k) {
-      const n = 512, c = new Float32Array(n);
-      for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; c[i] = Math.sign(x) * (1 - Math.exp(-k * Math.abs(x))); }
-      return c;
-    }
-
-    let doubleFx = null;
-    function buildDoubleFx() {
-      if (!ctx) return;
-      // Détache l'ancienne chaîne et relie la nouvelle entre bus.double et `out`.
-      try { bus.double.disconnect(); } catch (_) {}
-      if (doubleFx) { try { doubleFx.lfo && doubleFx.lfo.stop(); } catch (_) {} }
-      const fx = (S.parts.double && S.parts.double.fx) || 'none';
-      if (fx === 'none') { bus.double.connect(out); doubleFx = null; return; }
-      const nodes = { input: bus.double };
-      if (fx === 'sat' || fx === 'fuzz') {
-        const ws = ctx.createWaveShaper();
-        ws.curve = fx === 'fuzz' ? fuzzCurve(8) : satCurve(5);
-        ws.oversample = '4x';
-        const g = ctx.createGain(); g.gain.value = fx === 'fuzz' ? .6 : .8;
-        bus.double.connect(ws); ws.connect(g); g.connect(out);
-        nodes.shaper = ws; nodes.makeup = g;
-      } else if (fx === 'trem') {
-        // Tremolo : LFO qui module un gain entre .3 et 1.
-        const trem = ctx.createGain(); trem.gain.value = .65;
-        const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 5.5;
-        const lfoGain = ctx.createGain(); lfoGain.gain.value = .35;
-        lfo.connect(lfoGain); lfoGain.connect(trem.gain);
-        lfo.start();
-        bus.double.connect(trem); trem.connect(out);
-        nodes.trem = trem; nodes.lfo = lfo;
-      }
-      doubleFx = nodes;
-    }
-    // Reconstruit la chaîne quand l'utilisateur change D2.fx (appelé depuis l'écouteur).
-    function refreshDoubleFx() { buildDoubleFx(); }
 
     // 80 % = niveau nominal ; la courbe est quadratique pour que le bas du curseur reste utilisable
     function volumes() {
@@ -1678,9 +1674,12 @@
 
     function mark(i) {
       playingIdx = i;
-      document.querySelectorAll('.card').forEach((el, k) => el.classList.toggle('playing', k === i));
+      // Requête par la classe `.playing` plutôt qu'une référence cachée : survit à un re-render de la grille.
+      document.querySelector('#grid .card.playing')?.classList.remove('playing');
+      if (i >= 0) document.querySelector(`#grid .card[data-i="${i}"]`)?.classList.add('playing');
+      document.querySelector('#disc .node.playing')?.classList.remove('playing');
       const node = i >= 0 && S.chords[i] ? discNode(S.chords[i]) : null;
-      document.querySelectorAll('#disc .node').forEach(el => el.classList.toggle('playing', el.dataset.node === node));
+      if (node) document.querySelector(`#disc .node[data-node="${node}"]`)?.classList.add('playing');
       markMap(i);
     }
 
@@ -1699,7 +1698,7 @@
       $('#play').textContent = t('transport.play');
     }
 
-    return { chord, volumes, refreshDoubleFx, toggle: () => (timer ? stop() : start()), playing: () => !!timer };
+    return { chord, volumes, toggle: () => (timer ? stop() : start()), playing: () => !!timer };
   })();
 
   // ---------- Export ----------
@@ -1889,9 +1888,9 @@
   $('#parts').addEventListener('change', e => {
     const id = partOf(e.target), k = e.target.dataset.k;
     if (e.target.type === 'range') { if (id === 'chords' && k === 'color') renderDetail(); return; }
+    pushUndo(`parts:${id}:${k}`);
     S.parts[id][k] = isNaN(+e.target.value) ? e.target.value : +e.target.value;
     if (id === 'chords' && k === 'bars') return generate();
-    if (id === 'double' && k === 'fx' && Player.refreshDoubleFx) Player.refreshDoubleFx();
     save();
     renderParts();
   });

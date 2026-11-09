@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harmonie — Documentation</title>
+<style>
+  :root { color-scheme: dark; --bg: #121315; --panel: #1b1d20; --line: #2a2d31; --text: #e8e6e2; --muted: #9a958c; --accent: #e8b24d; }
+  @media (prefers-color-scheme: light) { :root { --bg:#f8f6f2; --panel:#fff; --line:#e3e0d9; --text:#1c1b19; --muted:#6a655d; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 -apple-system, "SF Pro Text", system-ui, sans-serif; }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  h2 { font-size: 20px; margin: 36px 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 6px; letter-spacing: -0.005em; }
+  h3 { font-size: 16px; margin: 20px 0 6px; color: var(--accent); }
+  p, li { color: var(--text); }
+  .lede { color: var(--muted); margin: 0 0 20px; }
+  .toc { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 28px; }
+  .toc ol { margin: 0; padding-left: 20px; }
+  .toc a { color: var(--text); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+  figure { margin: 14px 0 22px; }
+  figure img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; display: block; background: #000; }
+  figcaption { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .mobile-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .mobile-row figure { margin: 0; }
+  .mobile-row img { border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 20px; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  code { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; font-size: 13px; }
+  .tip { background: var(--panel); border-left: 3px solid var(--accent); padding: 10px 14px; margin: 14px 0; border-radius: 0 6px 6px 0; }
+  footer { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Harmonie</h1>
+<p class="lede">Générateur local de suites d'accords et de modes. L'application tourne entièrement dans le navigateur : pas de serveur, pas de compte, pas de dépendance réseau. Tout s'enregistre dans <code>localStorage</code>.</p>
+
+<nav class="toc">
+  <strong>Sommaire</strong>
+  <ol>
+    <li><a href="#apercu">Aperçu de l'interface</a></li>
+    <li><a href="#general">Panneau Général</a></li>
+    <li><a href="#pont">Pont</a></li>
+    <li><a href="#transport">Barre d'actions (transport)</a></li>
+    <li><a href="#accords1">Accords 1</a></li>
+    <li><a href="#accords2">Accords 2</a></li>
+    <li><a href="#basse">Basse</a></li>
+    <li><a href="#melodie">Mélodie</a></li>
+    <li><a href="#batterie">Batterie</a></li>
+    <li><a href="#morceau">Morceau — Grille, Disque, Carte</a></li>
+    <li><a href="#detail">Détail d'un accord</a></li>
+    <li><a href="#mobile">Version mobile</a></li>
+  </ol>
+</nav>
+
+<h2 id="apercu">Aperçu de l'interface</h2>
+<p>Au premier chargement, l'application ouvre une grille complète : Rock classique en Do majeur, mesure 4/4, ambiance Neutre. L'en-tête porte le titre, la bascule d'habillage <em>Classique / Studio</em>, un bouton d'aide et le sélecteur de langue (10 langues).</p>
+<figure>
+  <img src="screenshots/accueil-desktop.jpg" alt="Accueil de Harmonie en français, en largeur bureau">
+  <figcaption>Vue bureau : en-tête, panneau Général, et quatre panneaux d'instrument (Accords 1, Accords 2, Basse, Mélodie).</figcaption>
+</figure>
+
+<h2 id="general">Panneau Général</h2>
+<p>Réglages qui concernent le morceau entier. Changer certains réglages régénère la grille (famille, style, mode, mesure, ambiance) ; d'autres se contentent de transposer ou d'appliquer en direct (tonalité, tempo, brillance).</p>
+<table>
+  <tr><th>Réglage</th><th>Valeurs</th><th>Effet</th></tr>
+  <tr><td>Famille</td><td>9 boutons : Rock, Metal, Pop, Électronique, Hip-hop / R&amp;B, Jazz / Blues, Musiques du monde, Folk / Country, Classique / Orchestral</td><td>Passe au premier style de la famille et génère une nouvelle grille.</td></tr>
+  <tr><td>Style</td><td>jusqu'à ~15 styles par famille (111 au total)</td><td>Nouvelle grille, pose la mesure et le tempo naturels du style.</td></tr>
+  <tr><td>Tonalité</td><td>12 toniques</td><td>Transpose la grille sans la régénérer.</td></tr>
+  <tr><td>Mode</td><td>Majeur / Mineur</td><td>Nouvelle grille, tonique inchangée.</td></tr>
+  <tr><td>Mesure</td><td>3/4, 4/4, 5/8, 6/8, 7/8, 8/8, 9/12, 10/12, 11/12, 12/12</td><td>Nouvelle grille. Case <em>motifs propres</em> : motifs écrits pour la mesure (3/4 « Valse »).</td></tr>
+  <tr><td>Tempo</td><td>50 à 220 bpm</td><td>Hors plage → ramené, vide → 120.</td></tr>
+  <tr><td>Ambiance</td><td>liste groupée (Neutre, Lumineuses, Paisibles, Tendres, Tristes, Sombres, Intenses)</td><td>Pose des réglages visibles sur les instruments, oriente l'harmonie et génère une nouvelle grille.</td></tr>
+  <tr><td>Brillance</td><td>curseur 0 à 100</td><td>Filtre passe-bas de tous les timbres (sauf basse). Appliqué en direct.</td></tr>
+</table>
+
+<h2 id="pont">Pont</h2>
+<p>Un pont est une section contrastante tirée dans une tonalité voisine. Ses derniers accords reviennent sur la dominante du ton principal pour ramener à la grille.</p>
+<table>
+  <tr><th>Réglage</th><th>Valeurs</th></tr>
+  <tr><td>Type de pont</td><td>Aucun, Demi-ton au-dessus, Un ton au-dessus, Tierce mineure au-dessus, Relatif majeur/mineur, Homonyme majeur/mineur, Ton de la sous-dominante, Ton de la dominante</td></tr>
+  <tr><td>Longueur</td><td>4 ou 8 mesures</td></tr>
+  <tr><td>Forme</td><td>Forme A B · Forme A A B A</td></tr>
+  <tr><td>↻</td><td>Tire un autre pont sans toucher à la grille</td></tr>
+</table>
+
+<h2 id="transport">Barre d'actions (transport)</h2>
+<ul>
+  <li><strong>▶ Lecture / ■ Stop</strong> — démarre ou arrête la lecture en boucle. Raccourci : <code>Espace</code>.</li>
+  <li><strong>↻ Tout régénérer</strong> — nouvelle grille, nouveau pont, nouvelles graines pour tous les instruments.</li>
+  <li><strong>Annuler</strong> — remonte dans une pile de 60 états (bouton ou <code>⌘Z</code> / <code>Ctrl+Z</code>).</li>
+  <li><strong>Copier la grille</strong> — met la grille dans le presse-papier au format texte.</li>
+  <li><strong>Exporter MIDI</strong> — télécharge un fichier <code>.mid</code> qui correspond note pour note à ce qu'on entend.</li>
+</ul>
+
+<h2 id="accords1">Accords 1</h2>
+<p>Instrument d'accord principal. Panneau actif par défaut.</p>
+<figure>
+  <img src="screenshots/instruments-grille-desktop.jpg" alt="Panneaux d'instruments et début de la grille">
+  <figcaption>Les quatre panneaux d'instruments, avec le panneau Batterie en dessous et la grille du morceau sous les instruments.</figcaption>
+</figure>
+<table>
+  <tr><th>Réglage</th><th>Valeurs</th><th>Effet</th></tr>
+  <tr><td>Interrupteur · ↻ Régénérer</td><td>—</td><td>Coupe / active la partie ; régénère la grille (et le pont) pour Accords 1.</td></tr>
+  <tr><td>Jeu</td><td>Motif du style · Plaqués · Arpège montant · descendant · aller-retour · aléatoire</td><td>Façon de jouer l'accord.</td></tr>
+  <tr><td><strong>Motif</strong> <em>(nouveau)</em></td><td>Régulier · Lent · Gallop · Charleston · Tresillo · Alberti</td><td>Motif rythmique de l'arpège. <strong>Visible seulement quand le jeu est un arpège</strong> (montant, descendant, aller-retour, aléatoire).</td></tr>
+  <tr><td>Mesures</td><td>4, 8, 12, 16</td><td>Longueur de la grille (régénère).</td></tr>
+  <tr><td>Registre</td><td>Grave · Médium · Aigu</td><td>Décale de 7 demi-tons par cran.</td></tr>
+  <tr><td>Timbre</td><td>Auto, keys, guitar, pad, dist, lead, synth, strings, pluck, organ, brass</td><td>« Auto » = timbre du style. L'export MIDI écrit le timbre réellement joué.</td></tr>
+  <tr><td>Densité</td><td>curseur 0 à 100</td><td>Pour le <em>Motif du style</em> : densité de l'accompagnement. <strong>Pour un arpège : troue l'arpège</strong> (en dessous de 0,5 il laisse des silences).</td></tr>
+  <tr><td>Durée</td><td>curseur 0 à 100</td><td>0 = staccato, 100 = tenu (échelle ×0,3 à ×1,7).</td></tr>
+  <tr><td>Aération</td><td>curseur 0 à 100</td><td>Enlève des notes du voicing en gardant la tête.</td></tr>
+  <tr><td>Couleur</td><td>curseur 0 à 100</td><td>Richesse des accords (emprunts, enrichissements, qualités). S'applique à la <strong>prochaine</strong> grille.</td></tr>
+  <tr><td>Variation · Volume · Dynamique</td><td>curseurs 0 à 100</td><td>Communs à tous les instruments.</td></tr>
+</table>
+<div class="tip"><strong>Motif × Densité :</strong> le motif choisit le pattern rythmique de l'arpège (par exemple la pompe aller-retour « Alberti » ou le motif pointé « Gallop ») et la densité en retire une partie des notes pour aérer.</div>
+
+<h2 id="accords2">Accords 2</h2>
+<p>Deuxième instrument d'accord, <strong>désactivé par défaut</strong>. Partage tous les réglages d'Accords 1 et ajoute un sélecteur <em>Timbre</em> indépendant (dont <code>brass</code>) et un sélecteur <strong>Où</strong>. La basse du motif <em>style</em> reste émise par Accords 1 : pas de double ligne de basse.</p>
+<p><em>Note :</em> la chaîne d'effets audio (saturation, trémolo, fuzz) qui existait auparavant sur Accords 2 a été <strong>retirée</strong> (pas assez réaliste).</p>
+<table>
+  <tr><th>Réglage</th><th>Valeurs</th><th>Effet</th></tr>
+  <tr><td><strong>Où</strong> <em>(nouveau, remplace « Mesures »)</em></td><td>Partout · Mesures impaires · Mesures paires · Première moitié · Deuxième moitié</td><td>Mesures du cycle où Accords 2 joue (le reste est muet). <em>Première / Deuxième moitié</em> ne comptent que les mesures de la section A et ignorent le pont.</td></tr>
+  <tr><td>Motif</td><td>mêmes 6 valeurs qu'Accords 1</td><td>Visible seulement en mode arpège.</td></tr>
+  <tr><td>Timbre</td><td>Auto · keys · guitar · pad · dist · lead · synth · strings · pluck · organ · brass</td><td>Timbre propre à Accords 2.</td></tr>
+  <tr><td colspan="3">Autres réglages identiques à Accords 1 (jeu, registre, densité, durée, aération, variation, volume, dynamique). Bus audio et dynamique indépendants.</td></tr>
+</table>
+
+<h2 id="basse">Basse</h2>
+<p>Jeu (quelles notes) et rythme (quand) sont deux réglages distincts.</p>
+<table>
+  <tr><th>Jeu</th><td>Motif du style · Fondamentale · Fondamentale et quinte · Fondamentale et octave · Arpège · Walking bass · Pédale · Riff · Ligne chantante · Aléatoire</td></tr>
+  <tr><th>Rythme</th><td>Selon le jeu · Rondes · Blanches · Noires · Croches · Triolets · Doubles croches · Syncopé (3+3+2) · Pompe (temps 1 et 3) · Anticipé · Avec notes fantômes · Calé sur la grosse caisse</td></tr>
+  <tr><th>Mesures</th><td>Toute la grille · 1 · 2 · 4 · 8 (le motif se répète sur les accords suivants)</td></tr>
+  <tr><th>Durées variables</th><td>Raccourcit certaines notes au hasard</td></tr>
+  <tr><th>Couleur · Variation · Volume · Dynamique</th><td>Comme pour les autres parties</td></tr>
+</table>
+
+<h2 id="melodie">Mélodie</h2>
+<p>Partie désactivée par défaut.</p>
+<table>
+  <tr><th>Jeu</th><td>Notes longues · Durées mêlées · Notes vives</td></tr>
+  <tr><th>Mesures</th><td>Toute la grille · motif de 1, 2, 4 ou 8 mesures</td></tr>
+  <tr><th>Octave</th><td>Très grave (−2) à Très aigu (+2) — 12 demi-tons par cran</td></tr>
+  <tr><th>Contour</th><td>Libre · Montant · Descendant</td></tr>
+  <tr><th>Où jouer</th><td>Tous les accords · Accords impairs · Accords pairs · Sur la tonique seulement</td></tr>
+  <tr><th>Refrain</th><td>Aucun · toutes les 2, 4 ou 8 mesures (alterne couplet et refrain)</td></tr>
+  <tr><th>Respiration · Glissando · Couleur · Variation · Volume · Dynamique</th><td>Curseurs 0 à 100</td></tr>
+</table>
+
+<h2 id="batterie">Batterie</h2>
+<table>
+  <tr><th>Jeu</th><td>Feutrée · Posée · Énergique</td></tr>
+  <tr><th>Fills</th><td>1, 2, 4, 8 ou 16 mesures (1 mesure = pas de fill)</td></tr>
+  <tr><th>Style de variation</th><td>Droit · Notes fantômes · Syncopes · Laidback · Dense</td></tr>
+  <tr><th>Breaks</th><td>Aucun · toutes les 4, 8 ou 16 mesures (<em>batterie et basse muettes</em> sur le dernier temps de la mesure de break)</td></tr>
+  <tr><th>Couleur · Variation · Volume · Dynamique</th><td>Curseurs 0 à 100</td></tr>
+</table>
+
+<h2 id="morceau">Morceau — Grille, Disque, Carte</h2>
+<p>Trois vues du même morceau, choisies par le bouton segmenté <strong>Grille · Disque · Carte</strong>. La vue choisie est mémorisée.</p>
+
+<h3>Grille</h3>
+<figure>
+  <img src="screenshots/instruments-grille-desktop.jpg" alt="Vue Grille : cartes d'accords en lignes">
+  <figcaption>Chaque carte porte le chiffrage romain, le nom de l'accord, la fondamentale et le mode conseillé. La couleur reflète la fonction (T / SD / D). Un en-tête sépare la grille A du pont.</figcaption>
+</figure>
+
+<h3>Disque</h3>
+<figure>
+  <img src="screenshots/disque-desktop.jpg" alt="Vue Disque : accords sur le cycle des quintes">
+  <figcaption>Les accords sont placés sur le cycle des quintes. Anneau extérieur : majeurs et dominantes ; anneau intérieur : mineurs, demi-diminués et diminués de passage. Le secteur teinté réunit I, IV, V et leurs relatifs. Les flèches montrent les enchaînements ; les traits pointillés passent par le pont.</figcaption>
+</figure>
+
+<h3>Carte</h3>
+<figure>
+  <img src="screenshots/carte-desktop.jpg" alt="Vue Carte : accords rangés par fonction">
+  <figcaption>Les degrés sont rangés en colonnes <em>Tonique / Sous-dominante / Dominante</em>, avec les emprunts sous une ligne dédiée. Les flèches courbes tracent le chemin du morceau avec sa probabilité. Boutons : <em>Grille A / Pont B</em>, mode de clic <em>Écouter / Insérer après / Remplacer</em>, <em>Toutes les transitions</em>.</figcaption>
+</figure>
+
+<h2 id="detail">Détail d'un accord</h2>
+<p>Un clic sur une carte sélectionne l'accord et affiche son panneau de détail. Les flèches <code>←</code> et <code>→</code> passent à l'accord précédent ou suivant.</p>
+<figure>
+  <img src="screenshots/detail-accord-desktop.jpg" alt="Panneau de détail d'un accord">
+  <figcaption>Nom, fonction, mode conseillé, notes de l'accord sur le diagramme choisi (<em>Piano / Basse / Guitare</em>), et deux sections d'alternatives : <em>Remplacer par</em> (même durée) et <em>Continuer avec</em> (accords à insérer après, classés en <em>attendu / coloré / surprenant</em>).</figcaption>
+</figure>
+<p>Boutons disponibles :</p>
+<ul>
+  <li><strong>Durée</strong> : <em>Demi-mesure</em> (ou « Début de mesure » quand la mesure ne se coupe pas en deux moitiés égales), <em>1 mesure</em>, <em>2 mesures</em>.</li>
+  <li><strong>Écouter</strong> : joue l'accord isolé.</li>
+  <li><strong>Supprimer</strong> : retire l'accord (désactivé quand la grille ne compte qu'un accord).</li>
+</ul>
+
+<h2 id="mobile">Version mobile</h2>
+<p>Sous 760 pixels de large, l'interface passe en <strong>cinq onglets</strong> en haut (<em>Général, Instruments, Grille, Carte, Disque</em>) et une barre d'actions fixe en bas (Lecture + Tout régénérer). Les bandes Famille / Style défilent horizontalement, les panneaux d'instrument s'empilent en une colonne.</p>
+<div class="mobile-row">
+  <figure>
+    <img src="screenshots/general-mobile.jpg" alt="Harmonie sur mobile : onglet Général">
+    <figcaption>Onglet Général.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/instruments-mobile.jpg" alt="Harmonie sur mobile : onglet Instruments">
+    <figcaption>Onglet Instruments : Accords 1 avec <em>Motif</em> et <em>Densité</em>, Accords 2 (coupé) avec <em>Où</em>.</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/grille-mobile.jpg" alt="Harmonie sur mobile : onglet Grille">
+    <figcaption>Onglet Grille : deux colonnes de cartes et le détail en bas.</figcaption>
+  </figure>
+</div>
+<div class="tip"><strong>À noter.</strong> Le bouton <em>Tout régénérer</em> de la barre d'actions mobile s'affiche en anglais (« Regenerate all »). Les captures mobile ont été prises en simulant le breakpoint 760 px dans un navigateur bureau ; le rendu sur un vrai téléphone peut présenter de légères différences d'arrondi.</div>
+
+<footer>
+  Documentation générée le 2026-11-09 à partir de <code>http://localhost:8765</code>. Voir aussi <code>docs/SPECIFICATIONS.md</code> dans le dépôt pour la spécification fonctionnelle complète.
+</footer>
+
+</main>
+</body>
+</html>

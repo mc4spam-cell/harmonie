@@ -71,14 +71,18 @@ window.__i18nAdd('fr', {
   'part.regen': '↻ Régénérer',
   'part.play': 'Jeu',
   'part.bars': 'Mesures',
-  'part.rate': 'Débit',
+  'part.pattern': 'Motif',
+  'part.pattern.hint': 'Motif rythmique de l’arpège ; combiné à « Densité » pour trouer les notes',
+  'pattern.straight': 'Régulier',
+  'pattern.slow': 'Lent',
+  'pattern.gallop': 'Gallop',
+  'pattern.charleston': 'Charleston',
+  'pattern.tresillo': 'Tresillo',
+  'pattern.alberti': 'Alberti',
   'slider.color': 'Couleur',
   'slider.vari': 'Variation',
   'slider.vol': 'Volume',
   'slider.dyn': 'Dynamique',
-  'rate.2': 'Croches',
-  'rate.3': 'Triolets',
-  'rate.4': 'Doubles croches',
   'barsMotif.0': 'Toute la grille',
   'barsMotif.1': 'Motif de 1 mesure',
   'barsMotif.2': 'Motif de 2 mesures',
@@ -89,7 +93,7 @@ window.__i18nAdd('fr', {
   'chordBars.12': '12 mesures',
   'chordBars.16': '16 mesures',
 
-  'part.chords.name': 'Accords',
+  'part.chords.name': 'Accords 1',
   'part.chords.regen': "Nouvelle grille d’accords (G)",
   'part.chords.play.style': 'Motif du style',
   'part.chords.play.block': 'Plaqués',
@@ -345,11 +349,6 @@ window.__i18nAdd('fr', {
   'timbre.synth': 'Synthé',
 
   // Effets du double
-  'fx.none': 'Aucun',
-  'fx.sat': 'Saturation',
-  'fx.trem': 'Trémolo',
-  'fx.fuzz': 'Fuzz',
-
   // Intervalles périodiques (breaks batterie, refrain mélodie)
   'periodic.0': 'Aucun',
   'periodic.2': 'Toutes les 2 mesures',
@@ -373,15 +372,17 @@ window.__i18nAdd('fr', {
   'part.chords.air.hint': "Allège le voicing : enlève des notes de l'accord",
 
   // Double
-  'part.double.name': 'Double',
+  'part.double.name': 'Accords 2',
+  'part.double.where': 'Où',
+  'part.double.where.hint': 'Mesures du cycle où Accords 2 joue ; le reste est muet',
+  'part.double.where.all': 'Partout',
+  'part.double.where.odd': 'Mesures impaires',
+  'part.double.where.even': 'Mesures paires',
+  'part.double.where.first': 'Première moitié',
+  'part.double.where.second': 'Deuxième moitié',
   'part.double.regen': 'Nouveau tirage',
   'part.double.timbre': 'Timbre',
   'part.double.timbre.hint': 'Son du double ; « Auto » suit le style',
-  'part.double.fx': 'Effet',
-  'part.double.fx.hint': 'Effet audio appliqué au double (saturation / trémolo / fuzz)',
-  'part.double.bars.follow': 'Suit les accords 1',
-  'part.double.hint.bars': 'Longueur du motif (suivie sur les accords 1)',
-
   // Basse
   'part.bass.durVar': 'Durées variables',
   'part.bass.durVar.hint': 'Raccourcit certaines notes au hasard (phrasé)',

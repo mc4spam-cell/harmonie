@@ -70,5 +70,18 @@ for (const meter of METERS) {
   }
 }
 
+// 4. arpStrikes : par temps (2 croches), les j doivent être strictement croissants d'un pas au suivant
+// (évite qu'une même note du cycle se répète au passage de la barre de temps).
+for (const pat of ['straight', 'slow', 'gallop', 'charleston', 'tresillo', 'alberti']) {
+  let prev = -Infinity;
+  for (let k = 0; k < 16; k++) {
+    for (const s of H.arpStrikes(pat, k)) {
+      check(Number.isFinite(s.j) && s.j > prev, `arpStrikes ${pat} k=${k} j=${s.j} ≤ ${prev}`);
+      check(s.off >= 0 && s.dur > 0, `arpStrikes ${pat} off/dur invalides`);
+      prev = s.j;
+    }
+  }
+}
+
 console.log(`${checks} vérifications, ${fails} échec(s)`);
 process.exit(fails ? 1 : 0);

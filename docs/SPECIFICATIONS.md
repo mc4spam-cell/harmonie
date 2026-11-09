@@ -29,8 +29,8 @@ Le panneau **Général** regroupe les réglages qui concernent le morceau entier
 
 ### Nouveaux réglages par instrument (v2)
 
-- **Accords** : `Durée` (0 = staccato, 1 = tenu, échelle ×0,3 à ×1,7), `Aération` (enlève des notes du voicing en gardant la tête). Bouton **Arpège** : ouvre l'arpégiateur avec BPM/mesure/grille.
-- **Double** (second instrument d'accord, off par défaut) : partage toutes les options des accords 1 (`play` : style/block/up/down/updown/random, `rate`, `densité`, `registre`, `durée`, `aération`, `variation`, `dynamique`) et y ajoute un `timbre` propre (auto ou forcé, incluant `brass`) et un `fx` (saturation / trémolo / fuzz, chaîne audio câblée). La basse du motif `style` reste émise par les accords 1 (pas de double ligne de basse). Bus audio, volume et dynamique indépendants.
+- **Accords 1** : `Durée` (0 = staccato, 1 = tenu, échelle ×0,3 à ×1,7), `Aération` (enlève des notes du voicing en gardant la tête). Quand le jeu est un arpège (montant, descendant, aller-retour, aléatoire), un sélecteur **Motif** apparaît avec six valeurs — *Régulier, Lent, Gallop, Charleston, Tresillo, Alberti* — et le curseur `Densité` troue l'arpège (en dessous de 0,5 il laisse des silences).
+- **Accords 2** (second instrument d'accord, off par défaut, anciennement « Double ») : partage toutes les options d'Accords 1 (`play` : style/block/up/down/updown/random, `pattern`, `densité`, `registre`, `durée`, `aération`, `variation`, `dynamique`) et y ajoute un `timbre` propre (auto ou forcé, incluant `brass`) et un sélecteur **Où** (`all` / `odd` / `even` / `first` / `second`) qui limite les mesures du cycle où la partie joue ; le reste du cycle est muet. `first`/`second` ne comptent que les mesures de la section A (ignorent le pont). La basse du motif `style` reste émise par Accords 1 (pas de double ligne de basse). Bus audio, volume et dynamique indépendants. Aucune chaîne d'effets (saturation / trémolo / fuzz) n'est câblée sur cette partie.
 - **Basse** : `Durées variables` (raccourcit certaines notes au hasard). La dynamique accrue affecte aussi l'attaque (vélocité fortement scalée).
 - **Mélodie** : `Glissando` (notes qui se chevauchent légèrement), `Où jouer` (Tous / Impairs / Pairs / Tonique). Bouton **Arpège**.
 - **Batterie** : `Style de variation` (Droit / Notes fantômes / Syncopes / Laidback / Dense) qui se combine aux fills. `Breaks` (aucun / toutes les 4, 8 ou 16 mesures) : **batterie et basse muettes sur le dernier temps** de la mesure de break (la respiration classique « band stops »), les accords continuent. Nécessite la batterie activée.
@@ -221,7 +221,7 @@ Dans ce tableau, « inchangé » signifie que l'ambiance ne pose pas la valeur :
 
 ## 7. Instruments
 
-Quatre panneaux : **Accords**, **Basse**, **Mélodie**, **Batterie**. Chacun a l'interrupteur d'activation (l'instrument coupé n'est ni joué ni exporté), le bouton **↻ Régénérer**, puis les réglages du tableau ci-dessous.
+Cinq panneaux : **Accords 1**, **Accords 2** (second instrument d'accord, off par défaut), **Basse**, **Mélodie**, **Batterie**. Chacun a l'interrupteur d'activation (l'instrument coupé n'est ni joué ni exporté), le bouton **↻ Régénérer**, puis les réglages du tableau ci-dessous.
 
 ### Valeurs par défaut
 
@@ -238,8 +238,9 @@ Quatre panneaux : **Accords**, **Basse**, **Mélodie**, **Batterie**. Chacun a l
 |---|---|---|---|
 | Activation | interrupteur | activée / coupée | Coupe la partie à la lecture et à l'export. Raccourcis M (mélodie) et B (batterie). |
 | Jeu | liste | selon l'instrument | Façon de jouer (voir ci-dessous). |
-| Débit | liste | Croches, Triolets, Doubles croches | Notes par temps, pour les arpèges des accords seulement. |
-| Mesures | liste | Accords : 4, 8, 12, 16 ; basse et mélodie : Toute la grille, 1, 2, 4, 8 ; batterie : Fills (1, 2, 4, 8, 16) | Longueur de la grille (accords), du motif (basse, mélodie), ou période des fills (batterie). Accords : une nouvelle grille. |
+| Motif | liste | Régulier, Lent, Gallop, Charleston, Tresillo, Alberti | Motif rythmique des arpèges (Accords 1 et Accords 2). Visible seulement quand le jeu est un arpège (montant, descendant, aller-retour, aléatoire). Combiné à la Densité pour trouer les notes. |
+| Mesures | liste | Accords 1 : 4, 8, 12, 16 ; basse et mélodie : Toute la grille, 1, 2, 4, 8 ; batterie : Fills (1, 2, 4, 8, 16) | Longueur de la grille (Accords 1), du motif (basse, mélodie), ou période des fills (batterie). Accords 1 : une nouvelle grille. |
+| Où | liste (Accords 2 seulement) | Partout, Mesures impaires, Mesures paires, Première moitié, Deuxième moitié | Mesures du cycle où Accords 2 joue ; le reste est muet. *Première / Deuxième moitié* ne comptent que les mesures de la section A (ignorent le pont). Remplace le sélecteur Mesures sur ce panneau. |
 | Registre | liste | Grave (−1), Médium (0), Aigu (+1) | Décale les accords de 7 demi-tons par cran. |
 | Densité | curseur 0 à 100 | voir ci-dessous | Densité de l'accompagnement du motif du style. |
 | Rythme | liste | voir ci-dessous | Basse seulement. Désactivé quand le jeu est « Motif du style ». |
