@@ -2,9 +2,6 @@
 window.__i18nAdd('es', {
   'app.title': 'Harmonie',
   'app.subtitle': 'Generador de progresiones de acordes y modos',
-  'skin.aria': 'Apariencia',
-  'skin.classic': 'Clásico',
-  'skin.studio': 'Estudio',
   'help.aria': 'Atajos de teclado',
   'lang.aria': 'Idioma',
 

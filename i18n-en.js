@@ -3,9 +3,6 @@ window.__i18nAdd('en', {
   // En-tête
   'app.title': 'Harmonie',
   'app.subtitle': 'Chord progression and mode generator',
-  'skin.aria': 'Skin',
-  'skin.classic': 'Classic',
-  'skin.studio': 'Studio',
   'help.aria': 'Keyboard shortcuts',
   'lang.aria': 'Language',
 

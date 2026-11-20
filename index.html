@@ -270,7 +270,6 @@
     header { margin-bottom: 6px; gap: 8px; align-items: center; }
     h1 { font-size: 18px; }
     header p { display: none; }
-    #look button { padding: 2px 8px; font-size: 10px; }
     #help { width: 26px; height: 26px; padding: 0; font-size: 12px; }
 
     .tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; z-index: 10; margin: 0 -12px 10px; padding: 6px 12px; background: var(--bg); border-bottom: 1px solid var(--line); }
@@ -350,151 +349,29 @@
     .miniplay { display: flex; }
 
     /* Habillage Studio : paddings et marges rognés quand il est actif en mobile. */
-    html[data-look="studio"] main { padding: 8px 12px 88px; }
-    html[data-look="studio"] .zone { padding: 22px 16px 16px; margin-bottom: 14px; }
-    html[data-look="studio"] header { margin-bottom: 10px; }
-    html[data-look="studio"] h1 { font-size: 20px; }
-    html[data-look="studio"] .part { padding: 12px 14px 10px; }
   }
 
   /* ===================== Habillage « Studio » : minimal, filets fins, une seule couleur d'accent ===================== */
-  html[data-look="studio"] {
-    --bg: #0c0c0d; --panel: transparent; --panel2: rgba(255,255,255,.04); --line: rgba(255,255,255,.09);
-    --text: #f1efea; --muted: #85858b; --accent: #cdb68a; --accent-ink: #0c0c0d;
-    --T: #9db8ae; --SD: #cdb68a; --D: #d0998a; --key-w: #e9e7e2; --key-b: #1d1d20;
-  }
   @media (prefers-color-scheme: light) {
-    html[data-look="studio"] {
-      --bg: #f6f5f2; --panel2: rgba(0,0,0,.035); --line: rgba(0,0,0,.1);
-      --text: #151515; --muted: #77777c; --accent: #8a6c39; --accent-ink: #ffffff;
-      --T: #4f7f73; --SD: #8a6c39; --D: #a65a49; --key-w: #ffffff; --key-b: #222225;
-    }
-  }
-  html[data-look="studio"] body { font: 14px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; letter-spacing: .005em; }
-  html[data-look="studio"] main { max-width: 1180px; padding: 44px 32px 80px; }
-  html[data-look="studio"] header { margin-bottom: 44px; align-items: baseline; }
-  html[data-look="studio"] h1 { font-size: 30px; font-weight: 200; letter-spacing: .06em; }
-  html[data-look="studio"] header p { font-size: 12px; letter-spacing: .04em; }
-  html[data-look="studio"] h2, html[data-look="studio"] h4, html[data-look="studio"] .field > label {
-    font-size: 10px; font-weight: 500; letter-spacing: .18em; color: var(--muted);
   }
   /* cadres : un filet très fin, angles à peine adoucis ; le titre de zone est posé sur le filet */
-  html[data-look="studio"] .zone { position: relative; margin-bottom: 26px; padding: 34px 32px 32px; border: 1px solid var(--line); border-radius: 3px; }
-  html[data-look="studio"] .zone > h2, html[data-look="studio"] .zhead { position: absolute; top: 0; left: 22px; transform: translateY(-50%); margin: 0; padding: 0 10px; background: var(--bg); }
-  html[data-look="studio"] .zhead .seg button { padding: 2px 0; font-size: 11px; letter-spacing: .06em; }
 
   /* commandes : texte et filets, sans boîtes */
-  html[data-look="studio"] .controls, html[data-look="studio"] .zone > .transport { background: none; border: 0; border-radius: 0; padding: 0; }
-  html[data-look="studio"] .controls { gap: 22px 40px; }
-  html[data-look="studio"] .zone > .transport { margin-top: 30px; gap: 4px 18px; }
-  html[data-look="studio"] button, html[data-look="studio"] select, html[data-look="studio"] input[type=number] {
-    background: none; border: 0; border-radius: 0; padding: 6px 0; color: var(--text); font-size: 13px;
-  }
-  html[data-look="studio"] button { color: var(--muted); transition: color .15s; }
-  html[data-look="studio"] button:hover:not(:disabled) { color: var(--text); }
-  html[data-look="studio"] button.primary {
-    color: var(--accent-ink); background: var(--accent); border-radius: 99px; padding: 8px 22px; font-weight: 500; letter-spacing: .04em;
-  }
-  html[data-look="studio"] button.primary:hover { color: var(--accent-ink); opacity: .88; }
-  html[data-look="studio"] select, html[data-look="studio"] input[type=number] {
-    box-shadow: inset 0 -1px 0 var(--line); -webkit-appearance: none; appearance: none;
-    padding-right: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5' fill='none' stroke='%238a8a8e'/%3E%3C/svg%3E") no-repeat right 2px center;
-  }
-  html[data-look="studio"] input[type=number] { background: none; padding-right: 0; width: 56px; font-variant-numeric: tabular-nums; }
-  html[data-look="studio"] select:hover, html[data-look="studio"] input[type=number]:focus { box-shadow: inset 0 -1px 0 var(--muted); }
-  html[data-look="studio"] select option, html[data-look="studio"] select optgroup { background: var(--bg); color: var(--text); }
-  html[data-look="studio"] button:focus-visible, html[data-look="studio"] select:focus-visible, html[data-look="studio"] input:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 
   /* sélecteurs segmentés : onglets soulignés */
-  html[data-look="studio"] .seg { border: 0; border-radius: 0; gap: 2px 18px; overflow: visible; }
-  html[data-look="studio"] .seg button, html[data-look="studio"] #style button, html[data-look="studio"] #family button {
-    background: none; border: 0; margin: 0; padding: 4px 0; color: var(--muted);
-  }
-  html[data-look="studio"] .seg button.on { background: none; color: var(--text); font-weight: 400; box-shadow: inset 0 -1px 0 var(--accent); }
-  html[data-look="studio"] #family button { font-size: 14px; }
-  html[data-look="studio"] #style button { font-size: 12.5px; }
 
   /* curseurs : un filet et un point */
-  html[data-look="studio"] input[type=range] { -webkit-appearance: none; appearance: none; background: none; height: 18px; width: 150px; }
-  html[data-look="studio"] input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--line); }
-  html[data-look="studio"] input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 9px; height: 9px; margin-top: -4px; border-radius: 50%; background: var(--text); }
-  html[data-look="studio"] input[type=range]::-moz-range-track { height: 1px; background: var(--line); }
-  html[data-look="studio"] input[type=range]::-moz-range-thumb { width: 9px; height: 9px; border: 0; border-radius: 50%; background: var(--text); }
 
   /* instruments : quatre colonnes séparées par des filets */
-  html[data-look="studio"] .parts { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
-  html[data-look="studio"] .part { background: none; border: 1px solid var(--line); border-radius: 2px; padding: 18px 20px 16px; transition: border-color .2s; }
-  html[data-look="studio"] .part:hover { border-color: var(--muted); }
-  html[data-look="studio"] .part header { margin: 0 0 18px; gap: 12px; }
-  html[data-look="studio"] .part h3 { font-size: 15px; font-weight: 300; letter-spacing: .04em; }
-  html[data-look="studio"] .part .regen { font-size: 11px; letter-spacing: .06em; padding: 2px 0; }
-  html[data-look="studio"] .part .rows { gap: 6px 16px; }
-  html[data-look="studio"] .part .rows > label { font-size: 11px; letter-spacing: .02em; }
-  html[data-look="studio"] .part select { font-size: 12.5px; padding: 4px 16px 4px 0; }
-  html[data-look="studio"] .part output { font-size: 10.5px; width: 22px; }
-  html[data-look="studio"] .part.off .rows, html[data-look="studio"] .part.off h3 { opacity: .3; }
-  html[data-look="studio"] .switch { width: 24px; height: 13px; padding: 0; border-radius: 99px; box-shadow: inset 0 0 0 1px var(--muted); }
-  html[data-look="studio"] .switch i { top: 3px; left: 3px; width: 7px; height: 7px; background: var(--muted); }
-  html[data-look="studio"] .switch[aria-checked=true] { background: var(--accent); box-shadow: none; }
-  html[data-look="studio"] .switch[aria-checked=true] i { left: 14px; background: var(--accent-ink); }
 
   /* grille : un tableau de filets, accords en caractères fins */
-  html[data-look="studio"] .grid { gap: 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); border-radius: 2px; overflow: hidden; }
-  html[data-look="studio"] .card {
-    background: none; border: 0; border-radius: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
-    min-height: 112px; padding: 14px 16px; gap: 4px; transition: background .2s;
-  }
-  html[data-look="studio"] .card::before { left: 16px; top: 18px; bottom: auto; width: 5px; height: 5px; border-radius: 50%; }
-  html[data-look="studio"] .card .roman { padding-left: 12px; font-size: 10.5px; font-weight: 400; letter-spacing: .06em; color: var(--muted); }
-  html[data-look="studio"] .card .name { font-size: 25px; font-weight: 250; letter-spacing: .01em; color: var(--text); }
-  html[data-look="studio"] .card.narrow .name { font-size: 18px; }
-  html[data-look="studio"] .card .mode { font-size: 10.5px; letter-spacing: .02em; }
-  html[data-look="studio"] .card:hover { background: var(--panel2); }
-  html[data-look="studio"] .card.sel { box-shadow: inset 0 0 0 1px var(--accent); border-color: var(--line); }
-  html[data-look="studio"] .card.playing { background: var(--panel2); }
-  html[data-look="studio"] .card.playing .name { color: var(--accent); }
-  html[data-look="studio"] .sect { padding: 18px 0 10px; margin: 0; font-size: 10px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-left: 16px; }
-  html[data-look="studio"] .zhead { gap: 26px; }
 
   /* détail de l'accord */
-  html[data-look="studio"] #detail { background: none; border: 1px solid var(--line); border-radius: 2px; margin-top: 18px; padding: 28px 28px 24px; }
-  html[data-look="studio"] .d-top { gap: 48px; }
-  html[data-look="studio"] .d-name { font-size: 44px; font-weight: 200; letter-spacing: .01em; line-height: 1.1; }
-  html[data-look="studio"] .badge { border: 0; padding: 0; font-weight: 400; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
-  html[data-look="studio"] .badge + .badge::before { content: "·"; margin-right: 8px; color: var(--muted); }
-  html[data-look="studio"] .d-meta { margin: 8px 0 14px; }
-  html[data-look="studio"] .notes { font-size: 15px; font-weight: 300; letter-spacing: .14em; }
-  html[data-look="studio"] .kb { border-radius: 2px; height: 56px; max-width: 260px; }
-  html[data-look="studio"] .kb i.st::after, html[data-look="studio"] .kb i.ct::after, html[data-look="studio"] .kb i.root::after { width: 7px; height: 7px; margin-left: -3.5px; }
-  html[data-look="studio"] .kb i.st::after { border-width: 1px; }
-  html[data-look="studio"] .d-sug { margin-top: 34px; padding-top: 26px; gap: 48px; }
-  html[data-look="studio"] .group .gl { font-size: 10.5px; letter-spacing: .06em; }
-  html[data-look="studio"] .chips { gap: 2px 18px; }
-  html[data-look="studio"] .chip { border: 0; padding: 4px 0; color: var(--text); }
-  html[data-look="studio"] .chip::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--fn); align-self: center; }
-  html[data-look="studio"] .chip b { font-weight: 400; }
-  html[data-look="studio"] .chip:hover b { color: var(--accent); }
-  html[data-look="studio"] #beats button { padding: 4px 0; }
 
   /* disque */
-  html[data-look="studio"] .disc { background: none; border: 1px solid var(--line); border-radius: 2px; padding: 24px 32px; gap: 56px; }
-  html[data-look="studio"] .disc .wedge { opacity: .07; }
-  html[data-look="studio"] .disc .edge { opacity: .55; }
-  html[data-look="studio"] .disc .node circle { fill: var(--bg); stroke-width: 1.4; }
-  html[data-look="studio"] .disc .node.sel circle { stroke-width: 2.6; }
-  html[data-look="studio"] .disc .node text { font-weight: 400; font-size: 11.5px; }
-  html[data-look="studio"] .disc .lbl { font-size: 10px; opacity: .6; }
-  html[data-look="studio"] .share { height: 3px; gap: 1px; border-radius: 0; }
 
-  html[data-look="studio"] footer { margin-top: 0; padding: 4px 2px 0; font-size: 11px; line-height: 1.8; }
-  html[data-look="studio"] kbd { border-radius: 2px; background: none; font-size: 10.5px; }
-  html[data-look="studio"] #toast { border-radius: 99px; font-size: 12px; letter-spacing: .03em; padding: 8px 18px; }
-  html[data-look="studio"] .hint, html[data-look="studio"] .why { font-size: 12.5px; }
 
   @media (max-width: 760px) {
-    html[data-look="studio"] main { padding: 28px 16px 64px; }
-    html[data-look="studio"] .zone { padding: 30px 16px 20px; }
-    html[data-look="studio"] .disc, html[data-look="studio"] #detail { padding: 18px 14px; }
   }
 
   /* bouton d'aide + fenêtre des raccourcis */
@@ -503,8 +380,6 @@
     border-radius: 50%; line-height: 1; font-size: 14px; font-style: italic; font-weight: 600;
     display: inline-flex; align-items: center; justify-content: center;
   }
-  html[data-look="studio"] #help { border: 1px solid var(--line); color: var(--muted); }
-  html[data-look="studio"] #help:hover { color: var(--text); border-color: var(--muted); }
   dialog.sheet {
     width: min(420px, calc(100vw - 32px)); padding: 0; color: var(--text);
     background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
@@ -518,12 +393,6 @@
   dl.sc dt { margin: 0; white-space: nowrap; }
   dl.sc dd { margin: 0; color: var(--muted); }
   .sc-credits { margin: 0; padding: 12px 18px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.6; }
-  html[data-look="studio"] .sheet-head h2 { font-weight: 300; letter-spacing: .04em; }
-
-  /* sélecteur d'habillage */
-  #look { margin-left: auto; }
-  #look button { font-size: 11px; padding: 3px 10px; }
-  html[data-look="studio"] #look button { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; padding: 2px 0; }
 
   /* sélecteur de langue : bouton rond affichant le drapeau courant, à droite du bouton d'aide.
      Un clic ouvre un popover en dialogue natif avec les 10 drapeaux. */
@@ -534,8 +403,6 @@
     background: var(--panel2); border: 1px solid var(--line); cursor: pointer;
   }
   #lang:hover { border-color: var(--muted); }
-  html[data-look="studio"] #lang { border: 1px solid var(--line); background: transparent; }
-  html[data-look="studio"] #lang:hover { border-color: var(--muted); }
   /* La boîte s'adapte au nombre de tuiles : largeur max calée sur 5 colonnes de 86 px, elle rétrécit sur
      écran étroit. La grille utilise auto-fit, donc ajouter une tuile crée une colonne de plus (jusqu'à 5)
      ou retombe sur la ligne suivante. Toutes les tuiles ont des dimensions fixes identiques. */
@@ -551,11 +418,8 @@
   #langSheet button .flag { font-size: 24px; line-height: 1; }
   #langSheet button:hover { border-color: var(--muted); color: var(--text); }
   #langSheet button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-  html[data-look="studio"] #langSheet button { background: transparent; }
-  html[data-look="studio"] #langSheet button.on { background: var(--accent); }
 
-  /* adaptations RTL : en-tête et miniplay se retournent, le sélecteur garde sa position relative */
-  html[dir="rtl"] #look { margin-left: 0; margin-right: auto; }
+  /* adaptations RTL : en-tête et miniplay se retournent (dormant depuis la réduction des langues) */
   html[dir="rtl"] .d-head #instrView { margin-left: 0; margin-right: auto; }
 
   @media (max-width: 760px) {
@@ -566,17 +430,12 @@
     #langSheet button .flag { font-size: 20px; }
   }
 </style>
-<script>
-  // Habillage choisi (Studio par défaut), appliqué avant l'affichage pour éviter un clignotement.
-  try { document.documentElement.dataset.look = localStorage.getItem('harmonie.look') || 'classic'; } catch (e) { document.documentElement.dataset.look = 'classic'; }
-</script>
 </head>
 <body>
 <main>
   <header>
     <h1 data-i18n="app.title">Harmonie</h1>
     <p data-i18n="app.subtitle">Chord progression and mode generator</p>
-    <div class="seg" id="look" data-i18n-attr="aria-label:skin.aria"><button data-v="classic" data-i18n="skin.classic">Classic</button><button data-v="studio" data-i18n="skin.studio">Studio</button></div>
     <button id="help" data-i18n-attr="aria-label:help.aria,title:help.aria" aria-haspopup="dialog" aria-expanded="false">i</button>
     <button id="lang" data-i18n-attr="aria-label:lang.aria,title:lang.aria" aria-haspopup="dialog" aria-expanded="false">🇬🇧</button>
   </header>
@@ -681,20 +540,6 @@
 <dialog id="langSheet" aria-labelledby="langTitle">
   <div class="lang-grid" id="langGrid"></div>
 </dialog>
-<script>
-  // Bascule d'habillage : indépendante de l'application, mémorisée dans ce navigateur.
-  (function () {
-    const seg = document.getElementById('look'), sync = () => { for (const b of seg.children) b.classList.toggle('on', b.dataset.v === document.documentElement.dataset.look); };
-    seg.addEventListener('click', e => {
-      const v = e.target.dataset.v;
-      if (!v) return;
-      document.documentElement.dataset.look = v;
-      try { localStorage.setItem('harmonie.look', v); } catch (err) { /* stockage indisponible */ }
-      sync();
-    });
-    sync();
-  })();
-</script>
 <script>
   // Fenêtre des raccourcis clavier, ouverte depuis le bouton « i » de l'en-tête.
   (function () {

@@ -2,9 +2,6 @@
 window.__i18nAdd('de', {
   'app.title': 'Harmonie',
   'app.subtitle': 'Generator für Akkordfolgen und Modi',
-  'skin.aria': 'Darstellung',
-  'skin.classic': 'Klassisch',
-  'skin.studio': 'Studio',
   'help.aria': 'Tastaturkürzel',
   'lang.aria': 'Sprache',
 

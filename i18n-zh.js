@@ -2,9 +2,6 @@
 window.__i18nAdd('zh', {
   'app.title': 'Harmonie',
   'app.subtitle': '和弦进行与调式生成器',
-  'skin.aria': '外观',
-  'skin.classic': '经典',
-  'skin.studio': '工作室',
   'help.aria': '键盘快捷键',
   'lang.aria': '语言',
 

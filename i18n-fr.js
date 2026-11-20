@@ -2,9 +2,6 @@
 window.__i18nAdd('fr', {
   'app.title': 'Harmonie',
   'app.subtitle': "Générateur de suites d'accords et de modes",
-  'skin.aria': 'Habillage',
-  'skin.classic': 'Classique',
-  'skin.studio': 'Studio',
   'help.aria': 'Raccourcis clavier',
   'lang.aria': 'Langue',
 

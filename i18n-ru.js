@@ -2,9 +2,6 @@
 window.__i18nAdd('ru', {
   'app.title': 'Harmonie',
   'app.subtitle': 'Генератор аккордовых последовательностей и ладов',
-  'skin.aria': 'Оформление',
-  'skin.classic': 'Классическое',
-  'skin.studio': 'Студия',
   'help.aria': 'Клавиатурные сокращения',
   'lang.aria': 'Язык',
 
